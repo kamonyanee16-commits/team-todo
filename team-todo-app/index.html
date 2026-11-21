@@ -145,6 +145,20 @@
       </div>
     </section>
 
+    <!-- Readonly Friend Board Notice Banner -->
+    <div id="readonlyNoticeBanner" class="readonly-notice-banner" style="display: none;">
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span style="font-size: 1.3rem;">👁️</span>
+        <div>
+          <strong>โหมดดูงานเพื่อนร่วมทีม (อ่านอย่างเดียว)</strong>:
+          <span id="readonlyNoticeText">คุณกำลังดูบอร์ดของเพื่อนร่วมทีม สามารถดูรายละเอียดงานได้ แต่อ่านได้อย่างเดียว ไม่สามารถเพิ่มหรือแก้ไขงานแทนได้</span>
+        </div>
+      </div>
+      <button id="btnReturnToMyBoard" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+        ↩️ กลับไปที่บอร์ดของฉัน
+      </button>
+    </div>
+
     <!-- KPI Summary Grid -->
     <section class="kpi-grid">
       <div class="kpi-card total" id="kpiTotalCard">
@@ -414,6 +428,9 @@
               <select id="taskFormAssignee" class="form-select" required>
                 <!-- Populated dynamically -->
               </select>
+              <div id="lockedAssigneeNotice" style="display:none; font-size:0.78rem; color:#4338ca; background:#e0e7ff; padding:0.35rem 0.6rem; border-radius:6px; margin-top:0.3rem;">
+                🔒 บันทึกงานเป็นของ <strong id="lockedAssigneeName"></strong> โดยเฉพาะ
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">ระดับความสำคัญ</label>
@@ -451,6 +468,23 @@
           <div class="form-group" id="groupBlockedReason" style="display: none;">
             <label class="form-label" style="color: #dc2626;">ระบุสาเหตุที่ติดปัญหา <span class="required">*</span></label>
             <textarea id="taskFormBlockedReason" class="form-textarea" placeholder="เช่น รออะไหล่จากผู้ผลิต, ติดปัญหาหน้างานยังไม่พร้อม..."></textarea>
+          </div>
+
+          <!-- File & Photo Attachments -->
+          <div class="form-group" style="border-top: 1px dashed var(--border-color); padding-top: 0.85rem; margin-top: 0.5rem;">
+            <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+              <span>📎 รูปภาพและไฟล์แนบ (รูปหน้างาน, PDF, เอกสาร)</span>
+              <span id="lblAttachmentCount" style="font-size: 0.72rem; color: var(--text-muted);">ยังไม่มีไฟล์แนบ</span>
+            </label>
+            <div id="fileUploadDropzone" class="file-dropzone">
+              <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+              <span class="file-dropzone-text">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</span>
+              <span class="file-dropzone-hint">รองรับรูปภาพ (JPG, PNG), เอกสาร (PDF, Word, Excel) ขนาดไฟล์ไม่เกิน 5MB</span>
+              <input type="file" id="taskFileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display: none;">
+            </div>
+            <div id="taskAttachmentPreviews" class="attachment-preview-grid"></div>
           </div>
         </div>
 
@@ -510,6 +544,12 @@
             <div id="detailPriority" class="detail-value"></div>
           </div>
         </div>
+
+        <!-- Attachments in Detail View -->
+        <div class="form-group" id="detailAttachmentsGroup" style="display: none; border-top: 1px dashed var(--border-color); padding-top: 0.85rem; margin-top: 0.85rem;">
+          <label class="detail-label" style="font-weight: 700; margin-bottom: 0.4rem; display: block;">📎 รูปภาพและไฟล์แนบ</label>
+          <div id="detailAttachmentsContainer" class="detail-attachments-section"></div>
+        </div>
       </div>
       <div class="modal-footer" style="justify-content: space-between;">
         <button type="button" class="btn btn-secondary" id="btnDeleteTask" style="color: #dc2626; border-color: #fecaca;">
@@ -519,7 +559,7 @@
           </svg>
           <span>ลบงานนี้</span>
         </button>
-        <div style="display: flex; gap: 0.6rem;">
+        <div id="detailActionsRight" style="display: flex; gap: 0.6rem; align-items: center;">
           <button type="button" class="btn btn-secondary" id="btnEditTaskFromDetail">แก้ไขข้อมูล</button>
           <button type="button" class="btn btn-primary" id="btnChangeStatusQuick">เปลี่ยนสถานะ</button>
         </div>
@@ -772,6 +812,12 @@
         <button type="button" class="btn btn-secondary" id="btnCloseSheetsModalBtn">ปิด</button>
       </div>
     </div>
+  </div>
+
+  <!-- 7. Image Lightbox Modal -->
+  <div id="imageLightboxModal" class="lightbox-modal">
+    <button class="lightbox-close" id="btnCloseLightbox">&times;</button>
+    <img id="lightboxImg" class="lightbox-img" src="" alt="Full preview">
   </div>
 
   <!-- Toast Notification Container -->
