@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.2">
 </head>
 <body>
 
@@ -477,13 +477,14 @@
               <span id="lblAttachmentCount" style="font-size: 0.72rem; color: var(--text-muted);">ยังไม่มีไฟล์แนบ</span>
             </label>
             <div id="fileUploadDropzone" class="file-dropzone">
-              <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-              </svg>
-              <span class="file-dropzone-text">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</span>
-              <span class="file-dropzone-hint">รองรับรูปภาพ (JPG, PNG), เอกสาร (PDF, Word, Excel) ขนาดไฟล์ไม่เกิน 5MB</span>
-              <input type="file" id="taskFileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display: none;">
+              <div style="font-size: 1.8rem;">📷</div>
+              <span class="file-dropzone-text"><strong>คลิกที่นี่เพื่อเลือกรูปภาพหรือไฟล์</strong> หรือลากไฟล์มาวาง</span>
+              <span class="file-dropzone-hint">รองรับรูปถ่ายหน้างาน (JPG, PNG), เอกสาร (PDF, Word, Excel) ขนาดไม่เกิน 5MB</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnBrowseFiles" style="margin-top: 0.35rem;">
+                📁 เลือกไฟล์จากเครื่อง / ถ่ายภาพ
+              </button>
             </div>
+            <input type="file" id="taskFileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display: none;">
             <div id="taskAttachmentPreviews" class="attachment-preview-grid"></div>
           </div>
         </div>
@@ -824,6 +825,6 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- Application Script -->
-  <script src="app.js"></script>
+  <script src="app.js?v=2.2"></script>
 </body>
 </html>

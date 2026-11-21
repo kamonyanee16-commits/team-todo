@@ -8,7 +8,7 @@
 // ==========================================================================
 // (ตัวเลือกแนะนำ) นำ Web App URL ของ Google Sheets มาวางที่นี่
 // เพื่อให้ทุกคนที่เปิดเว็บผ่านลิงก์ (เช่น GitHub Pages) เชื่อมต่อชีตอัตโนมัติทันทีโดยไม่ต้องตั้งค่าเอง
-const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw58RWUr6VAyIkN1KivffYijjDM-XcaZa7X998UN4ku5RK6K65yIRqkMgP8ZT460KRjnA/exec';
+const DEFAULT_SHEETS_URL = '';
 
 const STORAGE_KEY_TASKS = 'team_tasks_data_v1';
 const STORAGE_KEY_MEMBERS = 'team_members_data_v1';
@@ -226,7 +226,18 @@ function getTaskAttachments(task) {
   return [];
 }
 
-function compressImageFile(file, maxWidth = 1000, quality = 0.75) {
+function isImageAttachment(att) {
+  if (!att) return false;
+  const type = (att.type || '').toLowerCase();
+  const url = (att.url || att.data || '').toLowerCase();
+  const name = (att.name || '').toLowerCase();
+  return type.startsWith('image/') || 
+         url.startsWith('data:image/') || 
+         /\.(jpeg|jpg|gif|png|webp|bmp|svg)/i.test(url) || 
+         /\.(jpeg|jpg|gif|png|webp|bmp|svg)$/i.test(name);
+}
+
+function compressImageFile(file, maxDimension = 640, quality = 0.6) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -234,21 +245,46 @@ function compressImageFile(file, maxWidth = 1000, quality = 0.75) {
       img.onload = () => {
         let width = img.width;
         let height = img.height;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+
+        function getCompressedData(curMaxDim, curQuality) {
+          let w = width;
+          let h = height;
+          if (w > curMaxDim || h > curMaxDim) {
+            if (w > h) {
+              h = Math.round((height * curMaxDim) / width);
+              w = curMaxDim;
+            } else {
+              w = Math.round((width * curMaxDim) / height);
+              h = curMaxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          return canvas.toDataURL('image/jpeg', curQuality);
         }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+
+        let curDim = maxDimension;
+        let curQ = quality;
+        let dataUrl = getCompressedData(curDim, curQ);
+
+        // Keep compressing if base64 string exceeds 30,000 chars so it always fits safely in Google Sheets cells
+        let attempts = 0;
+        while (dataUrl.length > 30000 && attempts < 5) {
+          curDim = Math.round(curDim * 0.8);
+          curQ = Math.max(0.35, curQ - 0.1);
+          dataUrl = getCompressedData(curDim, curQ);
+          attempts++;
+        }
+
         resolve({
           id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
           name: file.name,
           size: Math.round((dataUrl.length * 3) / 4),
           type: 'image/jpeg',
+          url: dataUrl,
           data: dataUrl
         });
       };
@@ -259,6 +295,7 @@ function compressImageFile(file, maxWidth = 1000, quality = 0.75) {
           name: file.name,
           size: file.size,
           type: file.type || 'image/jpeg',
+          url: e.target.result,
           data: e.target.result
         });
       };
@@ -282,6 +319,7 @@ function readDocumentFile(file) {
         name: file.name,
         size: file.size,
         type: file.type || 'application/octet-stream',
+        url: e.target.result,
         data: e.target.result
       });
     };
@@ -339,14 +377,14 @@ function renderFormAttachmentPreviews() {
 
   let html = '';
   currentFormAttachments.forEach((att, idx) => {
-    const isImg = (att.type && att.type.startsWith('image/')) || (att.url && att.url.match(/\.(jpeg|jpg|gif|png|webp)/i));
+    const isImg = isImageAttachment(att);
     const src = att.url || att.data;
 
     html += `
       <div class="attachment-chip">
         <button type="button" class="btn-remove-attachment" onclick="removeFormAttachment(${idx})" title="ลบไฟล์นี้">&times;</button>
-        ${isImg ? `
-          <img src="${src}" class="attachment-thumb" alt="${escapeHTML(att.name)}" onclick="openLightbox('${src}')" style="cursor:pointer;">
+        ${isImg && src ? `
+          <img src="${src}" class="attachment-thumb" alt="${escapeHTML(att.name)}" onclick="openLightbox(this.src)" style="cursor:pointer;" title="คลิกดูภาพขยาย">
         ` : `
           <div class="attachment-doc-icon">📄</div>
         `}
@@ -858,14 +896,12 @@ function renderKanbanBoard() {
       let attBadgeHtml = '';
       const attachments = getTaskAttachments(task);
       if (attachments.length > 0) {
-        const img = attachments.find(a => {
-          const type = (a.type || '').toLowerCase();
-          const url = (a.url || a.data || '').toLowerCase();
-          return type.startsWith('image/') || url.startsWith('data:image/') || url.match(/\.(jpeg|jpg|gif|png|webp)/i) || (a.name && a.name.match(/\.(jpeg|jpg|gif|png|webp)$/i));
-        });
+        const img = attachments.find(a => isImageAttachment(a));
         if (img) {
           const src = img.url || img.data;
-          coverImgHtml = `<div class="card-cover-image" style="background-image: url('${src}'); background-size: cover; background-position: center;" onclick="event.stopPropagation(); openLightbox('${src}')" title="คลิกดูภาพขยาย"></div>`;
+          if (src) {
+            coverImgHtml = `<img src="${src}" class="card-cover-image" alt="cover" onclick="event.stopPropagation(); openLightbox(this.src)" title="คลิกดูภาพขยาย">`;
+          }
         }
         attBadgeHtml = `<span class="card-attachment-badge" title="มีไฟล์แนบ ${attachments.length} รายการ">📎 ${attachments.length}</span>`;
       }
@@ -1405,12 +1441,8 @@ function openTaskDetailModal(taskId) {
   if (attGroup && attContainer) {
     if (attachments.length > 0) {
       attGroup.style.display = 'block';
-      const images = attachments.filter(a => {
-        const type = (a.type || '').toLowerCase();
-        const url = (a.url || a.data || '').toLowerCase();
-        return type.startsWith('image/') || url.startsWith('data:image/') || url.match(/\.(jpeg|jpg|gif|png|webp)/i) || (a.name && a.name.match(/\.(jpeg|jpg|gif|png|webp)$/i));
-      });
-      const docs = attachments.filter(a => !images.includes(a));
+      const images = attachments.filter(a => isImageAttachment(a));
+      const docs = attachments.filter(a => !isImageAttachment(a));
 
       let html = '';
       if (images.length > 0) {
@@ -1418,7 +1450,7 @@ function openTaskDetailModal(taskId) {
         images.forEach(img => {
           const src = img.url || img.data;
           html += `<div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-            <img src="${src}" class="detail-image-item" alt="${escapeHTML(img.name)}" onclick="openLightbox('${src}')" title="คลิกเพื่อดูรูปขนาดเต็ม (${escapeHTML(img.name)})">
+            <img src="${src}" class="detail-image-item" alt="${escapeHTML(img.name)}" onclick="openLightbox(this.src)" title="คลิกเพื่อดูรูปขนาดเต็ม (${escapeHTML(img.name)})" style="cursor:pointer;">
             <span style="font-size: 0.7rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 110px;">${escapeHTML(img.name || 'รูปภาพ')}</span>
           </div>`;
         });
@@ -2275,9 +2307,16 @@ function bindEvents() {
     });
   }
 
-  // File Upload Dropzone Events
+  // File Upload Dropzone & Browse Button Events
   const fileDropzone = document.getElementById('fileUploadDropzone');
   const fileInput = document.getElementById('taskFileInput');
+  const btnBrowseFiles = document.getElementById('btnBrowseFiles');
+  if (btnBrowseFiles && fileInput) {
+    btnBrowseFiles.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+  }
   if (fileDropzone && fileInput) {
     fileDropzone.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => {
