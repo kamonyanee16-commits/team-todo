@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบติดตามงานทีมงาน (Team Task & Kanban Hub)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================= App Header ================= -->
+  <header class="app-header">
+    <div class="header-inner">
+      <!-- Brand Logo -->
+      <div class="brand-section" id="btnGoHome" title="กลับหน้าหลัก">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1.5"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1.5"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>TeamTask Hub</h1>
+          <span>ระบบจัดการและติดตามงานทีมงาน</span>
+        </div>
+      </div>
+
+      <!-- Quick Search -->
+      <div class="header-center">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาชื่องาน, รายละเอียด หรือผู้รับผิดชอบ...">
+        </div>
+      </div>
+
+      <!-- Header Actions & Profile Switcher -->
+      <div class="header-actions">
+        <!-- Cloud Sync Status Pill -->
+        <button id="cloudStatusPill" class="cloud-status-pill" title="คลิกเพื่อตั้งค่าเชื่อมต่อ Google Sheets">
+          <span class="cloud-dot"></span>
+          <span id="cloudStatusText">☁️ Google Sheets</span>
+        </button>
+
+        <!-- Quick Sync Button -->
+        <button id="btnQuickSync" class="btn btn-secondary btn-icon" title="ซิงค์ข้อมูลกับ Google Sheets ตอนนี้">
+          <svg id="syncIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+
+        <!-- New Task Button -->
+        <button id="btnNewTask" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>สร้างงานใหม่</span>
+        </button>
+
+        <!-- Manage Team Button -->
+        <button id="btnManageTeam" class="btn btn-secondary btn-icon" title="จัดการรายชื่อสมาชิกทีม">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </button>
+
+        <!-- Export & Backup Button -->
+        <button id="btnExportImport" class="btn btn-secondary btn-icon" title="สำรอง / นำเข้าข้อมูล / Excel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+
+        <!-- Profile / Role Switcher -->
+        <div class="profile-switcher-wrapper">
+          <div id="profilePill" class="profile-pill">
+            <div id="currentAvatar" class="profile-avatar supervisor">ผบ</div>
+            <div class="profile-info">
+              <span id="currentName" class="profile-name">หัวหน้างาน</span>
+              <span id="currentRoleTag" class="profile-role-tag">ภาพรวมทีมงานทั้งหมด</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+
+          <!-- Dropdown Menu -->
+          <div id="profileMenu" class="profile-menu">
+            <div class="menu-label">มุมมองหัวหน้างาน</div>
+            <div class="menu-item active" data-role="supervisor">
+              <div class="avatar-circle" style="background: #1e293b;">ผบ</div>
+              <div>
+                <div style="font-weight: 600;">หัวหน้างาน (Supervisor)</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">เห็นภาพรวมงานของทุกคน</div>
+              </div>
+            </div>
+
+            <div class="menu-divider"></div>
+            <div class="menu-label">มุมมองทีมงานรายบุคคล</div>
+            <div id="memberMenuList">
+              <!-- Dynamically populated team members -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= Main App Container ================= -->
+  <main class="app-container">
+    
+    <!-- Role Banner -->
+    <section class="role-banner">
+      <div class="role-banner-content">
+        <div id="bannerBadge" class="role-banner-badge supervisor">
+          👔
+        </div>
+        <div class="role-banner-text">
+          <h2 id="bannerTitle">หน้าหัวหน้างาน - ภาพรวมของทีมงานทั้งหมด</h2>
+          <p id="bannerDesc">ติดตามสถานะงาน มอบหมายงาน และตรวจสอบความคืบหน้าของลูกทีมทุกคนแบบเรียลไทม์</p>
+        </div>
+      </div>
+      <div class="role-banner-actions">
+        <button id="btnQuickAddTask" class="btn btn-primary btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span id="lblBtnQuickAdd">มอบหมายงานใหม่</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- KPI Summary Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card total" id="kpiTotalCard">
+        <div class="kpi-info">
+          <h3>งานทั้งหมด</h3>
+          <div id="kpiTotal" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">📋</div>
+      </div>
+
+      <div class="kpi-card todo">
+        <div class="kpi-info">
+          <h3>รอดำเนินการ</h3>
+          <div id="kpiTodo" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">📝</div>
+      </div>
+
+      <div class="kpi-card progress">
+        <div class="kpi-info">
+          <h3>กำลังทำ</h3>
+          <div id="kpiProgress" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">⚙️</div>
+      </div>
+
+      <div class="kpi-card blocked" id="kpiBlockedCard">
+        <div class="kpi-info">
+          <h3>ติดปัญหา / ระงับ</h3>
+          <div id="kpiBlocked" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">⚠️</div>
+      </div>
+
+      <div class="kpi-card review">
+        <div class="kpi-info">
+          <h3>รอตรวจรับ</h3>
+          <div id="kpiReview" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">🔍</div>
+      </div>
+
+      <div class="kpi-card done">
+        <div class="kpi-info">
+          <h3>เสร็จสิ้นแล้ว</h3>
+          <div id="kpiDone" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">✅</div>
+      </div>
+
+      <div class="kpi-card overdue" id="kpiOverdueCard">
+        <div class="kpi-info">
+          <h3>เกินกำหนดส่ง</h3>
+          <div id="kpiOverdue" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">🚨</div>
+      </div>
+    </section>
+
+    <!-- Supervisor Section: Team Workload Breakdown -->
+    <section id="supervisorSection" style="margin-bottom: 1.5rem;">
+      <div class="section-title-wrap">
+        <div class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>ภาระงานและความคืบหน้ารายบุคคล (Team Workload)</span>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">คลิกที่การ์ดเพื่อสลับไปดูบอร์ดของสมาชิกคนนั้น</span>
+      </div>
+
+      <div id="workloadGrid" class="workload-grid">
+        <!-- Dynamically rendered member workload cards -->
+      </div>
+    </section>
+
+    <!-- Filter & View Controls -->
+    <section class="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">ตัวกรอง:</span>
+
+        <!-- Filter by Assignee (Supervisor only or for overview) -->
+        <select id="filterAssignee" class="filter-select">
+          <option value="all">ทีมงานทั้งหมด (ทุกคน)</option>
+          <!-- Dynamically populated options -->
+        </select>
+
+        <!-- Filter by Priority -->
+        <select id="filterPriority" class="filter-select">
+          <option value="all">ความสำคัญ: ทั้งหมด</option>
+          <option value="urgent">🔥 ด่วนมาก (Urgent)</option>
+          <option value="high">สูง (High)</option>
+          <option value="normal">ปกติ (Normal)</option>
+          <option value="low">ต่ำ (Low)</option>
+        </select>
+
+        <!-- Filter by Deadline -->
+        <select id="filterDeadline" class="filter-select">
+          <option value="all">กำหนดส่ง: ทั้งหมด</option>
+          <option value="overdue">🚨 เกินกำหนดส่ง (Overdue)</option>
+          <option value="due_soon">⏰ ใกล้ถึงกำหนด (ภายใน 48 ชม.)</option>
+          <option value="on_track">🟢 ทันตามกำหนด</option>
+        </select>
+
+        <!-- Reset filter button -->
+        <button id="btnResetFilters" class="btn btn-secondary btn-sm" style="display:none;" title="ล้างตัวกรอง">
+          ล้างตัวกรอง
+        </button>
+      </div>
+
+      <!-- View Switcher (Kanban vs Table) -->
+      <div class="view-tabs">
+        <button id="tabKanban" class="view-tab active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+          </svg>
+          <span>บอร์ดคัมบัง</span>
+        </button>
+        <button id="tabTable" class="view-tab">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          <span>ตารางภาพรวม</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= Kanban Board (5 Columns) ================= -->
+    <section id="kanbanBoardView" class="kanban-board">
+      
+      <!-- 1. To Do Column -->
+      <div class="kanban-column col-todo" data-status="todo">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">📝 รอดำเนินการ</h3>
+          </div>
+          <span id="countTodo" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsTodo">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 2. In Progress Column -->
+      <div class="kanban-column col-progress" data-status="in_progress">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">⚙️ กำลังทำ</h3>
+          </div>
+          <span id="countProgress" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsProgress">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 3. Blocked / On Hold Column -->
+      <div class="kanban-column col-blocked" data-status="blocked">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">⚠️ ติดปัญหา / ระงับ</h3>
+          </div>
+          <span id="countBlocked" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsBlocked">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 4. Review / Inspection Column -->
+      <div class="kanban-column col-review" data-status="review">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">🔍 รอตรวจรับ</h3>
+          </div>
+          <span id="countReview" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsReview">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 5. Done Column -->
+      <div class="kanban-column col-done" data-status="done">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">✅ เสร็จสิ้น</h3>
+          </div>
+          <span id="countDone" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsDone">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= Table View (Alternative View) ================= -->
+    <section id="tableViewSection" class="table-view-container" style="display: none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">ชื่องาน / รายละเอียด</th>
+            <th style="width: 14%;">ผู้รับผิดชอบ</th>
+            <th style="width: 14%;">สถานะ</th>
+            <th style="width: 12%;">ระดับความสำคัญ</th>
+            <th style="width: 12%;">วันที่มอบหมาย</th>
+            <th style="width: 13%;">กำหนดส่ง (Deadline)</th>
+            <th style="width: 10%; text-align: center;">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Dynamically populated table rows -->
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- ================= Modals ================= -->
+
+  <!-- 1. Task Modal (Create & Edit Task) -->
+  <div id="taskModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="taskModalTitle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          <span>สร้างงานใหม่</span>
+        </h3>
+        <button class="modal-close" id="btnCloseTaskModal">&times;</button>
+      </div>
+      <form id="taskForm">
+        <input type="hidden" id="taskFormId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">ชื่องาน <span class="required">*</span></label>
+            <input type="text" id="taskFormTitle" class="form-input" placeholder="เช่น ตรวจสอบแบบเหล็กโครงสร้าง B1" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">รายละเอียดงาน</label>
+            <textarea id="taskFormDesc" class="form-textarea" placeholder="ระบุขอบเขตงาน รายละเอียด หรือสิ่งที่ต้องส่งมอบ..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ผู้รับผิดชอบ <span class="required">*</span></label>
+              <select id="taskFormAssignee" class="form-select" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ระดับความสำคัญ</label>
+              <select id="taskFormPriority" class="form-select">
+                <option value="urgent">🔥 ด่วนมาก (Urgent)</option>
+                <option value="high">สูง (High)</option>
+                <option value="normal" selected>ปกติ (Normal)</option>
+                <option value="low">ต่ำ (Low)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">วันที่มอบหมาย/เริ่มงาน <span class="required">*</span></label>
+              <input type="date" id="taskFormCreatedDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">กำหนดส่ง (Deadline) <span class="required">*</span></label>
+              <input type="date" id="taskFormDeadline" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">สถานะของงาน</label>
+            <select id="taskFormStatus" class="form-select">
+              <option value="todo">📝 รอดำเนินการ (To Do)</option>
+              <option value="in_progress">⚙️ กำลังทำ (In Progress)</option>
+              <option value="blocked">⚠️ ติดปัญหา / ระงับ (Blocked)</option>
+              <option value="review">🔍 รอตรวจรับ (Review)</option>
+              <option value="done">✅ เสร็จสิ้น (Done)</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="groupBlockedReason" style="display: none;">
+            <label class="form-label" style="color: #dc2626;">ระบุสาเหตุที่ติดปัญหา <span class="required">*</span></label>
+            <textarea id="taskFormBlockedReason" class="form-textarea" placeholder="เช่น รออะไหล่จากผู้ผลิต, ติดปัญหาหน้างานยังไม่พร้อม..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelTaskForm">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveTask">บันทึกข้อมูลงาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Task Details Modal -->
+  <div id="taskDetailModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="detailTitle">รายละเอียดงาน</h3>
+        <button class="modal-close" id="btnCloseDetailModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="detailBlockedAlert" class="blocked-reason-box" style="display: none;">
+          <div>
+            <strong>⚠️ งานนี้ติดปัญหา:</strong>
+            <p id="detailBlockedReasonText" style="margin-top: 0.2rem;"></p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="detail-label">ชื่องาน</label>
+          <h2 id="detailFullTitle" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);"></h2>
+        </div>
+
+        <div class="form-group">
+          <label class="detail-label">รายละเอียด</label>
+          <div id="detailDescription" style="font-size: 0.9rem; color: #334155; line-height: 1.6; white-space: pre-line; background: #f8fafc; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+          </div>
+        </div>
+
+        <div class="detail-meta-box">
+          <div class="detail-item">
+            <span class="detail-label">ผู้รับผิดชอบ</span>
+            <div id="detailAssignee" class="detail-value" style="display:flex; align-items:center; gap:0.4rem;"></div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">สถานะปัจจุบัน</span>
+            <div id="detailStatus" class="detail-value"></div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">วันที่มอบหมาย</span>
+            <span id="detailCreatedDate" class="detail-value"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">กำหนดส่ง (Deadline)</span>
+            <div id="detailDeadline" class="detail-value"></div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">ระดับความสำคัญ</span>
+            <div id="detailPriority" class="detail-value"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn btn-secondary" id="btnDeleteTask" style="color: #dc2626; border-color: #fecaca;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>ลบงานนี้</span>
+        </button>
+        <div style="display: flex; gap: 0.6rem;">
+          <button type="button" class="btn btn-secondary" id="btnEditTaskFromDetail">แก้ไขข้อมูล</button>
+          <button type="button" class="btn btn-primary" id="btnChangeStatusQuick">เปลี่ยนสถานะ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Blocked Reason Prompt Modal -->
+  <div id="blockedReasonModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header" style="background: #fef2f2; border-bottom-color: #fca5a5;">
+        <h3 style="color: #dc2626;">
+          ⚠️ ระบุสาเหตุที่ติดปัญหา
+        </h3>
+        <button class="modal-close" id="btnCloseBlockedPrompt">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.88rem; color: #475569;">
+          โปรดระบุปัญหาหรืออุปสรรคที่ทำให้งานไม่สามารถดำเนินต่อได้ เพื่อให้หัวหน้างานและทีมรับทราบและช่วยแก้ไข:
+        </p>
+        <div class="form-group">
+          <textarea id="promptBlockedReasonInput" class="form-textarea" placeholder="เช่น รอแบบอนุมัติ, ขาดชิ้นส่วนอะไหล่, หน้างานฝนตก..." rows="4"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelBlockedPrompt">ยกเลิก</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmBlockedPrompt" style="background:#dc2626;">บันทึกสถานะติดปัญหา</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Team Management Modal -->
+  <div id="teamModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>จัดการรายชื่อทีมงาน</span>
+        </h3>
+        <button class="modal-close" id="btnCloseTeamModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">รายชื่อสมาชิกในระบบ</h4>
+        <div id="teamMemberList" class="member-manage-list">
+          <!-- Dynamically populated list -->
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+          <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.75rem;">+ เพิ่มสมาชิกใหม่ในทีม</h4>
+          <form id="addMemberForm">
+            <div class="form-row" style="margin-bottom: 0.75rem;">
+              <div class="form-group">
+                <label class="form-label">ชื่อ - นามสกุล <span class="required">*</span></label>
+                <input type="text" id="newMemberName" class="form-input" placeholder="เช่น สมชาย สายลุย" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ตำแหน่ง / หน้าที่ <span class="required">*</span></label>
+                <input type="text" id="newMemberRole" class="form-input" placeholder="เช่น ช่างเทคนิค, วิศวกร" required>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-primary btn-sm">เพิ่มสมาชิก</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseTeamModalBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Export / Import / Backup Modal -->
+  <div id="exportImportModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>สำรอง / นำเข้าข้อมูล / ส่งออก Excel</span>
+        </h3>
+        <button class="modal-close" id="btnCloseExportModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem;">📊 ส่งออกรายงานเป็น Excel (CSV)</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            ดาวน์โหลดรายการงานทั้งหมดของทุกคนเป็นไฟล์ CSV (รองรับภาษาไทยเปิดด้วย Excel ได้ทันที)
+          </p>
+          <button id="btnExportCSV" class="btn btn-primary btn-sm" style="background: #059669;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>ดาวน์โหลดรายงาน Excel (CSV)</span>
+          </button>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem;">💾 สำรองและกู้คืนข้อมูล (JSON Backup)</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            บันทึกข้อมูลสำรองทั้งหมดลงไฟล์ หรือย้ายไปเปิดใช้งานที่คอมพิวเตอร์เครื่องอื่น
+          </p>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button id="btnExportJSON" class="btn btn-secondary btn-sm">
+              ส่งออกไฟล์สำรอง (Export JSON)
+            </button>
+            <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0;">
+              นำเข้าไฟล์สำรอง (Import JSON)
+              <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            </label>
+          </div>
+        </div>
+
+        <div style="padding-top: 0.5rem;">
+          <button id="btnResetDemo" class="btn btn-sm" style="color: #dc2626; background: transparent; border: 1px dashed #fca5a5;">
+            🔄 รีเซ็ตข้อมูลเป็นชุดตัวอย่างเริ่มต้น (Reset to Demo)
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseExportModalBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Google Sheets Integration Modal -->
+  <div id="sheetsModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+          </svg>
+          <span>เชื่อมต่อ Google Sheets (แชร์งานร่วมกับทีม)</span>
+        </h3>
+        <button class="modal-close" id="btnCloseSheetsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Status Display Card -->
+        <div id="sheetsStatusCard" class="cloud-settings-card" style="margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">สถานะการเชื่อมต่อ</div>
+              <div id="sheetsStatusLabel" style="font-weight: 700; font-size: 0.95rem; margin-top: 0.2rem; color: #475569;">
+                ☁️ ยังไม่ได้เชื่อมต่อ (ทำงานแบบบันทึกเฉพาะในเครื่องนี้)
+              </div>
+            </div>
+            <span id="sheetsStatusBadge" class="cloud-dot" style="width: 12px; height: 12px;"></span>
+          </div>
+          <div id="sheetsStatusDetails" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.4rem;">
+            เมื่อเชื่อมต่อแล้ว ข้อมูลงานจะถูกเก็บลง Google Sheets บน Google Drive และแชร์ให้ทุกคนในทีมใช้งานร่วมกันได้ทันที
+          </div>
+        </div>
+
+        <!-- URL Input & Configuration -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">
+            Google Apps Script Web App URL
+          </label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="url" id="sheetsUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            <button type="button" id="btnTestAndSaveSheets" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+              บันทึกและเชื่อมต่อ
+            </button>
+          </div>
+          <span style="font-size: 0.74rem; color: var(--text-muted);">
+            นำ Web App URL ที่ได้จากการ Deploy สคริปต์ <code>GoogleSheetsAPI.gs</code> มาวางในช่องนี้
+          </span>
+        </div>
+
+        <!-- Data Sync Operations -->
+        <div class="cloud-settings-card" style="margin-bottom: 1rem;">
+          <h4 style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem;">🔄 จัดการซิงค์ข้อมูล (Data Sync)</h4>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button type="button" id="btnPullFromSheets" class="btn btn-secondary btn-sm" style="flex: 1;">
+              📥 ดึงข้อมูลจาก Google Sheets
+            </button>
+            <button type="button" id="btnPushToSheets" class="btn btn-secondary btn-sm" style="flex: 1;">
+              📤 ส่งข้อมูลในเครื่องขึ้น Google Sheets
+            </button>
+          </div>
+          <div style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" id="chkAutoSync" checked style="cursor: pointer;">
+            <label for="chkAutoSync" style="font-size: 0.82rem; cursor: pointer; color: var(--text-main);">
+              ซิงค์อัตโนมัติเมื่อมีการเพิ่ม / แก้ไข / ลบงาน (Auto-sync)
+            </label>
+          </div>
+        </div>
+
+        <!-- Setup Step Guide -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">
+            📖 วิธีติดตั้งสคริปต์ Google Sheets (ใช้เวลา 2 นาที)
+          </h4>
+
+          <div class="instruction-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              เปิด Google Drive แล้วกด <strong>+ ใหม่ ➔ Google ชีต (Google Sheets)</strong> ใหม่ 1 ไฟล์
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              ที่หน้า Google Sheets ไปที่เมนู <strong>ส่วนขยาย (Extensions) ➔ Apps Script</strong>
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              ลบโค้ดเดิมออกทั้งหมด แล้วเปิดไฟล์ <code>team-todo-app/GoogleSheetsAPI.gs</code> คัดลอกโค้ดทั้งหมดไปวางแทน แล้วกดบันทึก (Ctrl+S)
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              ที่แถบเครื่องมือด้านบน เลือกฟังก์ชัน <code>setupDatabase</code> แล้วกดปุ่ม <strong>"เรียกใช้" (Run)</strong> 1 ครั้ง เพื่อสร้างชีตอัตโนมัติ
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              กดปุ่มสีน้ำเงิน <strong>การทำให้ใช้งานได้ (Deploy) ➔ รายการใหม่ (New deployment)</strong><br>
+              - เลือกประเภท: <strong>เว็บแอป (Web app)</strong><br>
+              - ผู้ที่มีสิทธิ์เข้าถึง (Who has access): <strong>ทุกคน (Anyone)</strong><br>
+              - กด <strong>ทำให้ใช้งานได้</strong> แล้วคัดลอก <strong>URL เว็บแอป</strong> มาวางในช่องด้านบนนี้ หรือส่งให้ทีมงานเปิดผ่านมือถือได้ทันที!
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseSheetsModalBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>

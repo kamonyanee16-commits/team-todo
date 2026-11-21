@@ -1,0 +1,4144 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบติดตามงานทีมงาน (Team Task & Kanban Hub)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ==========================================================================
+   TeamTask Hub - Modern Kanban & Overview System
+   Styles & Responsive Design
+   ========================================================================== */
+
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
+  --primary-dark: #3730a3;
+
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --border-color: #e2e8f0;
+  --border-focus: #818cf8;
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+
+  /* Status Colors */
+  --status-todo: #64748b;
+  --status-todo-bg: #f8fafc;
+  --status-todo-border: #cbd5e1;
+
+  --status-progress: #2563eb;
+  --status-progress-bg: #eff6ff;
+  --status-progress-border: #93c5fd;
+
+  --status-blocked: #dc2626;
+  --status-blocked-bg: #fef2f2;
+  --status-blocked-border: #fca5a5;
+
+  --status-review: #7c3aed;
+  --status-review-bg: #f5f3ff;
+  --status-review-border: #c4b5fd;
+
+  --status-done: #059669;
+  --status-done-bg: #ecfdf5;
+  --status-done-border: #6ee7b7;
+
+  /* Priority Colors */
+  --priority-urgent: #dc2626;
+  --priority-urgent-bg: #fee2e2;
+  --priority-high: #ea580c;
+  --priority-high-bg: #ffedd5;
+  --priority-normal: #2563eb;
+  --priority-normal-bg: #dbeafe;
+  --priority-low: #64748b;
+  --priority-low-bg: #f1f5f9;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-hover: 0 12px 20px -3px rgb(79 70 229 / 0.15), 0 6px 8px -3px rgb(0 0 0 / 0.06);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Prompt', 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   Header & Navigation
+   ========================================================================== */
+.app-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-inner {
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, var(--primary), #818cf8);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.brand-text h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.brand-text span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  max-width: 450px;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  width: 18px;
+  height: 18px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 1rem 0.5rem 2.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  background-color: var(--bg-subtle);
+  font-size: 0.875rem;
+  color: var(--text-main);
+  transition: var(--transition);
+  outline: none;
+}
+
+.search-input:focus {
+  background-color: #ffffff;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Profile Switcher */
+.profile-switcher-wrapper {
+  position: relative;
+}
+
+.profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-color);
+  padding: 0.35rem 0.85rem 0.35rem 0.5rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.875rem;
+}
+
+.profile-pill:hover {
+  background: #ffffff;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.profile-avatar.supervisor {
+  background: linear-gradient(135deg, #1e293b, #334155);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.profile-name {
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-main);
+}
+
+.profile-role-tag {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 0.5rem;
+  display: none;
+  z-index: 50;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.profile-menu.show {
+  display: block;
+}
+
+.menu-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-light);
+  padding: 0.4rem 0.6rem 0.2rem;
+  letter-spacing: 0.5px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-main);
+  font-size: 0.85rem;
+}
+
+.menu-item:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.menu-item.active {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.menu-item .avatar-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: white;
+  font-weight: 600;
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0.35rem 0;
+}
+
+/* Cloud Status & Sync UI */
+.cloud-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.cloud-status-pill:hover {
+  background: white;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.cloud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.cloud-status-pill.connected .cloud-dot {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.cloud-status-pill.syncing .cloud-dot {
+  background: #3b82f6;
+  animation: pulse 1s infinite;
+}
+
+.cloud-status-pill.error .cloud-dot {
+  background: #ef4444;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.instruction-step {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-content {
+  font-size: 0.84rem;
+  color: var(--text-main);
+  line-height: 1.45;
+}
+
+.step-content code {
+  background: #e2e8f0;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.cloud-settings-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition);
+  text-decoration: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-subtle);
+  border-color: #cbd5e1;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-icon {
+  padding: 0.45rem;
+  border-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   Main Layout & Container
+   ========================================================================== */
+.app-container {
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  width: 100%;
+  flex: 1;
+}
+
+/* Top View Banner / Role Notice */
+.role-banner {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.role-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.role-banner-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.role-banner-badge.supervisor {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.role-banner-text h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.role-banner-text p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.role-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Filter Controls Bar */
+.filter-bar {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-right: 0.25rem;
+}
+
+.filter-select {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-subtle);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  border-color: var(--primary);
+  background-color: white;
+}
+
+.view-tabs {
+  display: flex;
+  background: var(--bg-subtle);
+  padding: 3px;
+  border-radius: var(--radius-md);
+}
+
+.view-tab {
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.view-tab.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   KPI Summary Cards (Overview)
+   ========================================================================== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.kpi-card.total::before { background: #64748b; }
+.kpi-card.todo::before { background: var(--status-todo); }
+.kpi-card.progress::before { background: var(--status-progress); }
+.kpi-card.blocked::before { background: var(--status-blocked); }
+.kpi-card.review::before { background: var(--status-review); }
+.kpi-card.done::before { background: var(--status-done); }
+.kpi-card.overdue::before { background: #e11d48; }
+
+.kpi-info h3 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-main);
+}
+
+.kpi-card.blocked .kpi-number { color: var(--status-blocked); }
+.kpi-card.overdue .kpi-number { color: #e11d48; }
+
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.kpi-card.total .kpi-icon { background: #f1f5f9; color: #475569; }
+.kpi-card.todo .kpi-icon { background: var(--status-todo-bg); color: var(--status-todo); }
+.kpi-card.progress .kpi-icon { background: var(--status-progress-bg); color: var(--status-progress); }
+.kpi-card.blocked .kpi-icon { background: var(--status-blocked-bg); color: var(--status-blocked); }
+.kpi-card.review .kpi-icon { background: var(--status-review-bg); color: var(--status-review); }
+.kpi-card.done .kpi-icon { background: var(--status-done-bg); color: var(--status-done); }
+.kpi-card.overdue .kpi-icon { background: #ffe4e6; color: #e11d48; }
+
+/* Pulse animation for blocked tasks if > 0 */
+.pulse-badge {
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   Member Workload Grid (Supervisor View)
+   ========================================================================== */
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.member-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+
+.member-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.member-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.member-card-user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.member-avatar-lg {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.member-card-details h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.member-card-details span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.member-task-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  color: var(--text-main);
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+
+.member-status-pills {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-chip.todo { background: #f1f5f9; color: #475569; }
+.status-chip.progress { background: #eff6ff; color: #2563eb; }
+.status-chip.blocked { background: #fef2f2; color: #dc2626; font-weight: 600; }
+.status-chip.review { background: #f5f3ff; color: #7c3aed; }
+.status-chip.done { background: #ecfdf5; color: #059669; }
+.status-chip.overdue { background: #ffe4e6; color: #e11d48; font-weight: 600; }
+
+/* ==========================================================================
+   Kanban Board (5 Columns)
+   ========================================================================== */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+  min-height: 550px;
+}
+
+.kanban-column {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 210px);
+  min-height: 450px;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.2s;
+}
+
+.kanban-column.drag-over {
+  background-color: #eef2ff;
+  border: 2px dashed var(--primary);
+}
+
+.column-header {
+  padding: 0.9rem 1rem;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.kanban-column.col-todo .column-header { border-bottom-color: var(--status-todo); }
+.kanban-column.col-progress .column-header { border-bottom-color: var(--status-progress); }
+.kanban-column.col-blocked .column-header { border-bottom-color: var(--status-blocked); background: #fff8f8; }
+.kanban-column.col-review .column-header { border-bottom-color: var(--status-review); }
+.kanban-column.col-done .column-header { border-bottom-color: var(--status-done); }
+
+.column-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.column-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.col-todo .column-dot { background: var(--status-todo); }
+.col-progress .column-dot { background: var(--status-progress); }
+.col-blocked .column-dot { background: var(--status-blocked); }
+.col-review .column-dot { background: var(--status-review); }
+.col-done .column-dot { background: var(--status-done); }
+
+.column-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.column-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+
+.column-cards {
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 200px;
+}
+
+/* Custom Scrollbar */
+.column-cards::-webkit-scrollbar {
+  width: 5px;
+}
+.column-cards::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Empty Column Placeholder */
+.empty-column-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  margin-top: 0.5rem;
+  text-align: center;
+  user-select: none;
+}
+
+/* ==========================================================================
+   Kanban Task Card
+   ========================================================================== */
+.task-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.95rem;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  position: relative;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: #cbd5e1;
+}
+
+.task-card:active {
+  cursor: grabbing;
+}
+
+.task-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+}
+
+/* Priority & Category Badges */
+.card-header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.priority-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.priority-tag.urgent { background: var(--priority-urgent-bg); color: var(--priority-urgent); }
+.priority-tag.high { background: var(--priority-high-bg); color: var(--priority-high); }
+.priority-tag.normal { background: var(--priority-normal-bg); color: var(--priority-normal); }
+.priority-tag.low { background: var(--priority-low-bg); color: var(--priority-low); }
+
+.card-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.card-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Blocked Notice Box inside Card */
+.blocked-reason-box {
+  background: #fef2f2;
+  border-left: 3px solid #dc2626;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.78rem;
+  color: #991b1b;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  line-height: 1.3;
+}
+
+.blocked-reason-box strong {
+  font-weight: 600;
+}
+
+/* Card Footer (Date, Deadline & Assignee) */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.65rem;
+  margin-top: 0.25rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.card-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.deadline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.74rem;
+}
+
+.deadline-badge.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.deadline-badge.soon {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.deadline-badge.normal {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.deadline-badge.done {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.card-assignee {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.assignee-avatar-sm {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+/* Quick Status Change Action Menu on Card */
+.card-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.btn-card-action {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.45rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.btn-card-action:hover {
+  background: white;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ==========================================================================
+   Table View (Alternative Overview)
+   ========================================================================== */
+.table-view-container {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.data-table th {
+  background: #f8fafc;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.data-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   Modals & Dialogs
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 580px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+  padding: 1.15rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--text-main);
+  background: #f1f5f9;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Form Controls inside Modals */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.form-label .required {
+  color: #dc2626;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--text-main);
+  background: white;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-textarea {
+  min-height: 85px;
+  resize: vertical;
+}
+
+/* Task Detail Specific Modal Elements */
+.detail-meta-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+/* Team Management Modal Elements */
+.member-manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.5rem;
+}
+
+.member-manage-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  background: #1e293b;
+  color: white;
+  padding: 0.75rem 1.15rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: auto;
+  animation: slideInRight 0.25s ease-out;
+  max-width: 380px;
+}
+
+.toast.success { background: #065f46; }
+.toast.error { background: #991b1b; }
+.toast.warning { background: #92400e; }
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .kanban-board {
+    grid-template-columns: repeat(5, 290px);
+  }
+}
+
+@media (max-width: 768px) {
+  .header-inner {
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+  }
+  
+  .header-center {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .role-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .role-banner-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-meta-box {
+    grid-template-columns: 1fr;
+  }
+
+  .kanban-board {
+    grid-template-columns: repeat(5, 280px);
+  }
+}
+
+</style>
+</head>
+<body>
+
+  <!-- ================= App Header ================= -->
+  <header class="app-header">
+    <div class="header-inner">
+      <!-- Brand Logo -->
+      <div class="brand-section" id="btnGoHome" title="กลับหน้าหลัก">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1.5"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1.5"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>TeamTask Hub</h1>
+          <span>ระบบจัดการและติดตามงานทีมงาน</span>
+        </div>
+      </div>
+
+      <!-- Quick Search -->
+      <div class="header-center">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="ค้นหาชื่องาน, รายละเอียด หรือผู้รับผิดชอบ...">
+        </div>
+      </div>
+
+      <!-- Header Actions & Profile Switcher -->
+      <div class="header-actions">
+        <!-- Cloud Sync Status Pill -->
+        <button id="cloudStatusPill" class="cloud-status-pill" title="คลิกเพื่อตั้งค่าเชื่อมต่อ Google Sheets">
+          <span class="cloud-dot"></span>
+          <span id="cloudStatusText">☁️ Google Sheets</span>
+        </button>
+
+        <!-- Quick Sync Button -->
+        <button id="btnQuickSync" class="btn btn-secondary btn-icon" title="ซิงค์ข้อมูลกับ Google Sheets ตอนนี้">
+          <svg id="syncIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+
+        <!-- New Task Button -->
+        <button id="btnNewTask" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>สร้างงานใหม่</span>
+        </button>
+
+        <!-- Manage Team Button -->
+        <button id="btnManageTeam" class="btn btn-secondary btn-icon" title="จัดการรายชื่อสมาชิกทีม">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </button>
+
+        <!-- Export & Backup Button -->
+        <button id="btnExportImport" class="btn btn-secondary btn-icon" title="สำรอง / นำเข้าข้อมูล / Excel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+
+        <!-- Profile / Role Switcher -->
+        <div class="profile-switcher-wrapper">
+          <div id="profilePill" class="profile-pill">
+            <div id="currentAvatar" class="profile-avatar supervisor">ผบ</div>
+            <div class="profile-info">
+              <span id="currentName" class="profile-name">หัวหน้างาน</span>
+              <span id="currentRoleTag" class="profile-role-tag">ภาพรวมทีมงานทั้งหมด</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+
+          <!-- Dropdown Menu -->
+          <div id="profileMenu" class="profile-menu">
+            <div class="menu-label">มุมมองหัวหน้างาน</div>
+            <div class="menu-item active" data-role="supervisor">
+              <div class="avatar-circle" style="background: #1e293b;">ผบ</div>
+              <div>
+                <div style="font-weight: 600;">หัวหน้างาน (Supervisor)</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">เห็นภาพรวมงานของทุกคน</div>
+              </div>
+            </div>
+
+            <div class="menu-divider"></div>
+            <div class="menu-label">มุมมองทีมงานรายบุคคล</div>
+            <div id="memberMenuList">
+              <!-- Dynamically populated team members -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= Main App Container ================= -->
+  <main class="app-container">
+    
+    <!-- Role Banner -->
+    <section class="role-banner">
+      <div class="role-banner-content">
+        <div id="bannerBadge" class="role-banner-badge supervisor">
+          👔
+        </div>
+        <div class="role-banner-text">
+          <h2 id="bannerTitle">หน้าหัวหน้างาน - ภาพรวมของทีมงานทั้งหมด</h2>
+          <p id="bannerDesc">ติดตามสถานะงาน มอบหมายงาน และตรวจสอบความคืบหน้าของลูกทีมทุกคนแบบเรียลไทม์</p>
+        </div>
+      </div>
+      <div class="role-banner-actions">
+        <button id="btnQuickAddTask" class="btn btn-primary btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span id="lblBtnQuickAdd">มอบหมายงานใหม่</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- KPI Summary Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card total" id="kpiTotalCard">
+        <div class="kpi-info">
+          <h3>งานทั้งหมด</h3>
+          <div id="kpiTotal" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">📋</div>
+      </div>
+
+      <div class="kpi-card todo">
+        <div class="kpi-info">
+          <h3>รอดำเนินการ</h3>
+          <div id="kpiTodo" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">📝</div>
+      </div>
+
+      <div class="kpi-card progress">
+        <div class="kpi-info">
+          <h3>กำลังทำ</h3>
+          <div id="kpiProgress" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">⚙️</div>
+      </div>
+
+      <div class="kpi-card blocked" id="kpiBlockedCard">
+        <div class="kpi-info">
+          <h3>ติดปัญหา / ระงับ</h3>
+          <div id="kpiBlocked" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">⚠️</div>
+      </div>
+
+      <div class="kpi-card review">
+        <div class="kpi-info">
+          <h3>รอตรวจรับ</h3>
+          <div id="kpiReview" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">🔍</div>
+      </div>
+
+      <div class="kpi-card done">
+        <div class="kpi-info">
+          <h3>เสร็จสิ้นแล้ว</h3>
+          <div id="kpiDone" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">✅</div>
+      </div>
+
+      <div class="kpi-card overdue" id="kpiOverdueCard">
+        <div class="kpi-info">
+          <h3>เกินกำหนดส่ง</h3>
+          <div id="kpiOverdue" class="kpi-number">0</div>
+        </div>
+        <div class="kpi-icon">🚨</div>
+      </div>
+    </section>
+
+    <!-- Supervisor Section: Team Workload Breakdown -->
+    <section id="supervisorSection" style="margin-bottom: 1.5rem;">
+      <div class="section-title-wrap">
+        <div class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>ภาระงานและความคืบหน้ารายบุคคล (Team Workload)</span>
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">คลิกที่การ์ดเพื่อสลับไปดูบอร์ดของสมาชิกคนนั้น</span>
+      </div>
+
+      <div id="workloadGrid" class="workload-grid">
+        <!-- Dynamically rendered member workload cards -->
+      </div>
+    </section>
+
+    <!-- Filter & View Controls -->
+    <section class="filter-bar">
+      <div class="filter-group">
+        <span class="filter-label">ตัวกรอง:</span>
+
+        <!-- Filter by Assignee (Supervisor only or for overview) -->
+        <select id="filterAssignee" class="filter-select">
+          <option value="all">ทีมงานทั้งหมด (ทุกคน)</option>
+          <!-- Dynamically populated options -->
+        </select>
+
+        <!-- Filter by Priority -->
+        <select id="filterPriority" class="filter-select">
+          <option value="all">ความสำคัญ: ทั้งหมด</option>
+          <option value="urgent">🔥 ด่วนมาก (Urgent)</option>
+          <option value="high">สูง (High)</option>
+          <option value="normal">ปกติ (Normal)</option>
+          <option value="low">ต่ำ (Low)</option>
+        </select>
+
+        <!-- Filter by Deadline -->
+        <select id="filterDeadline" class="filter-select">
+          <option value="all">กำหนดส่ง: ทั้งหมด</option>
+          <option value="overdue">🚨 เกินกำหนดส่ง (Overdue)</option>
+          <option value="due_soon">⏰ ใกล้ถึงกำหนด (ภายใน 48 ชม.)</option>
+          <option value="on_track">🟢 ทันตามกำหนด</option>
+        </select>
+
+        <!-- Reset filter button -->
+        <button id="btnResetFilters" class="btn btn-secondary btn-sm" style="display:none;" title="ล้างตัวกรอง">
+          ล้างตัวกรอง
+        </button>
+      </div>
+
+      <!-- View Switcher (Kanban vs Table) -->
+      <div class="view-tabs">
+        <button id="tabKanban" class="view-tab active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+          </svg>
+          <span>บอร์ดคัมบัง</span>
+        </button>
+        <button id="tabTable" class="view-tab">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          <span>ตารางภาพรวม</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= Kanban Board (5 Columns) ================= -->
+    <section id="kanbanBoardView" class="kanban-board">
+      
+      <!-- 1. To Do Column -->
+      <div class="kanban-column col-todo" data-status="todo">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">📝 รอดำเนินการ</h3>
+          </div>
+          <span id="countTodo" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsTodo">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 2. In Progress Column -->
+      <div class="kanban-column col-progress" data-status="in_progress">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">⚙️ กำลังทำ</h3>
+          </div>
+          <span id="countProgress" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsProgress">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 3. Blocked / On Hold Column -->
+      <div class="kanban-column col-blocked" data-status="blocked">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">⚠️ ติดปัญหา / ระงับ</h3>
+          </div>
+          <span id="countBlocked" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsBlocked">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 4. Review / Inspection Column -->
+      <div class="kanban-column col-review" data-status="review">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">🔍 รอตรวจรับ</h3>
+          </div>
+          <span id="countReview" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsReview">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+      <!-- 5. Done Column -->
+      <div class="kanban-column col-done" data-status="done">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot"></div>
+            <h3 class="column-title">✅ เสร็จสิ้น</h3>
+          </div>
+          <span id="countDone" class="column-badge">0</span>
+        </div>
+        <div class="column-cards" id="cardsDone">
+          <!-- Task cards injected here -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= Table View (Alternative View) ================= -->
+    <section id="tableViewSection" class="table-view-container" style="display: none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">ชื่องาน / รายละเอียด</th>
+            <th style="width: 14%;">ผู้รับผิดชอบ</th>
+            <th style="width: 14%;">สถานะ</th>
+            <th style="width: 12%;">ระดับความสำคัญ</th>
+            <th style="width: 12%;">วันที่มอบหมาย</th>
+            <th style="width: 13%;">กำหนดส่ง (Deadline)</th>
+            <th style="width: 10%; text-align: center;">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Dynamically populated table rows -->
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- ================= Modals ================= -->
+
+  <!-- 1. Task Modal (Create & Edit Task) -->
+  <div id="taskModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="taskModalTitle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          <span>สร้างงานใหม่</span>
+        </h3>
+        <button class="modal-close" id="btnCloseTaskModal">&times;</button>
+      </div>
+      <form id="taskForm">
+        <input type="hidden" id="taskFormId" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">ชื่องาน <span class="required">*</span></label>
+            <input type="text" id="taskFormTitle" class="form-input" placeholder="เช่น ตรวจสอบแบบเหล็กโครงสร้าง B1" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">รายละเอียดงาน</label>
+            <textarea id="taskFormDesc" class="form-textarea" placeholder="ระบุขอบเขตงาน รายละเอียด หรือสิ่งที่ต้องส่งมอบ..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ผู้รับผิดชอบ <span class="required">*</span></label>
+              <select id="taskFormAssignee" class="form-select" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ระดับความสำคัญ</label>
+              <select id="taskFormPriority" class="form-select">
+                <option value="urgent">🔥 ด่วนมาก (Urgent)</option>
+                <option value="high">สูง (High)</option>
+                <option value="normal" selected>ปกติ (Normal)</option>
+                <option value="low">ต่ำ (Low)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">วันที่มอบหมาย/เริ่มงาน <span class="required">*</span></label>
+              <input type="date" id="taskFormCreatedDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">กำหนดส่ง (Deadline) <span class="required">*</span></label>
+              <input type="date" id="taskFormDeadline" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">สถานะของงาน</label>
+            <select id="taskFormStatus" class="form-select">
+              <option value="todo">📝 รอดำเนินการ (To Do)</option>
+              <option value="in_progress">⚙️ กำลังทำ (In Progress)</option>
+              <option value="blocked">⚠️ ติดปัญหา / ระงับ (Blocked)</option>
+              <option value="review">🔍 รอตรวจรับ (Review)</option>
+              <option value="done">✅ เสร็จสิ้น (Done)</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="groupBlockedReason" style="display: none;">
+            <label class="form-label" style="color: #dc2626;">ระบุสาเหตุที่ติดปัญหา <span class="required">*</span></label>
+            <textarea id="taskFormBlockedReason" class="form-textarea" placeholder="เช่น รออะไหล่จากผู้ผลิต, ติดปัญหาหน้างานยังไม่พร้อม..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelTaskForm">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveTask">บันทึกข้อมูลงาน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Task Details Modal -->
+  <div id="taskDetailModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="detailTitle">รายละเอียดงาน</h3>
+        <button class="modal-close" id="btnCloseDetailModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="detailBlockedAlert" class="blocked-reason-box" style="display: none;">
+          <div>
+            <strong>⚠️ งานนี้ติดปัญหา:</strong>
+            <p id="detailBlockedReasonText" style="margin-top: 0.2rem;"></p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="detail-label">ชื่องาน</label>
+          <h2 id="detailFullTitle" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);"></h2>
+        </div>
+
+        <div class="form-group">
+          <label class="detail-label">รายละเอียด</label>
+          <div id="detailDescription" style="font-size: 0.9rem; color: #334155; line-height: 1.6; white-space: pre-line; background: #f8fafc; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+          </div>
+        </div>
+
+        <div class="detail-meta-box">
+          <div class="detail-item">
+            <span class="detail-label">ผู้รับผิดชอบ</span>
+            <div id="detailAssignee" class="detail-value" style="display:flex; align-items:center; gap:0.4rem;"></div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">สถานะปัจจุบัน</span>
+            <div id="detailStatus" class="detail-value"></div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">วันที่มอบหมาย</span>
+            <span id="detailCreatedDate" class="detail-value"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">กำหนดส่ง (Deadline)</span>
+            <div id="detailDeadline" class="detail-value"></div>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">ระดับความสำคัญ</span>
+            <div id="detailPriority" class="detail-value"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn btn-secondary" id="btnDeleteTask" style="color: #dc2626; border-color: #fecaca;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>ลบงานนี้</span>
+        </button>
+        <div style="display: flex; gap: 0.6rem;">
+          <button type="button" class="btn btn-secondary" id="btnEditTaskFromDetail">แก้ไขข้อมูล</button>
+          <button type="button" class="btn btn-primary" id="btnChangeStatusQuick">เปลี่ยนสถานะ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Blocked Reason Prompt Modal -->
+  <div id="blockedReasonModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header" style="background: #fef2f2; border-bottom-color: #fca5a5;">
+        <h3 style="color: #dc2626;">
+          ⚠️ ระบุสาเหตุที่ติดปัญหา
+        </h3>
+        <button class="modal-close" id="btnCloseBlockedPrompt">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.88rem; color: #475569;">
+          โปรดระบุปัญหาหรืออุปสรรคที่ทำให้งานไม่สามารถดำเนินต่อได้ เพื่อให้หัวหน้างานและทีมรับทราบและช่วยแก้ไข:
+        </p>
+        <div class="form-group">
+          <textarea id="promptBlockedReasonInput" class="form-textarea" placeholder="เช่น รอแบบอนุมัติ, ขาดชิ้นส่วนอะไหล่, หน้างานฝนตก..." rows="4"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelBlockedPrompt">ยกเลิก</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmBlockedPrompt" style="background:#dc2626;">บันทึกสถานะติดปัญหา</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Team Management Modal -->
+  <div id="teamModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>จัดการรายชื่อทีมงาน</span>
+        </h3>
+        <button class="modal-close" id="btnCloseTeamModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">รายชื่อสมาชิกในระบบ</h4>
+        <div id="teamMemberList" class="member-manage-list">
+          <!-- Dynamically populated list -->
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+          <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.75rem;">+ เพิ่มสมาชิกใหม่ในทีม</h4>
+          <form id="addMemberForm">
+            <div class="form-row" style="margin-bottom: 0.75rem;">
+              <div class="form-group">
+                <label class="form-label">ชื่อ - นามสกุล <span class="required">*</span></label>
+                <input type="text" id="newMemberName" class="form-input" placeholder="เช่น สมชาย สายลุย" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ตำแหน่ง / หน้าที่ <span class="required">*</span></label>
+                <input type="text" id="newMemberRole" class="form-input" placeholder="เช่น ช่างเทคนิค, วิศวกร" required>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-primary btn-sm">เพิ่มสมาชิก</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseTeamModalBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Export / Import / Backup Modal -->
+  <div id="exportImportModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>สำรอง / นำเข้าข้อมูล / ส่งออก Excel</span>
+        </h3>
+        <button class="modal-close" id="btnCloseExportModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem;">📊 ส่งออกรายงานเป็น Excel (CSV)</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            ดาวน์โหลดรายการงานทั้งหมดของทุกคนเป็นไฟล์ CSV (รองรับภาษาไทยเปิดด้วย Excel ได้ทันที)
+          </p>
+          <button id="btnExportCSV" class="btn btn-primary btn-sm" style="background: #059669;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>ดาวน์โหลดรายงาน Excel (CSV)</span>
+          </button>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem;">💾 สำรองและกู้คืนข้อมูล (JSON Backup)</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            บันทึกข้อมูลสำรองทั้งหมดลงไฟล์ หรือย้ายไปเปิดใช้งานที่คอมพิวเตอร์เครื่องอื่น
+          </p>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button id="btnExportJSON" class="btn btn-secondary btn-sm">
+              ส่งออกไฟล์สำรอง (Export JSON)
+            </button>
+            <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0;">
+              นำเข้าไฟล์สำรอง (Import JSON)
+              <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            </label>
+          </div>
+        </div>
+
+        <div style="padding-top: 0.5rem;">
+          <button id="btnResetDemo" class="btn btn-sm" style="color: #dc2626; background: transparent; border: 1px dashed #fca5a5;">
+            🔄 รีเซ็ตข้อมูลเป็นชุดตัวอย่างเริ่มต้น (Reset to Demo)
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseExportModalBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Google Sheets Integration Modal -->
+  <div id="sheetsModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+          </svg>
+          <span>เชื่อมต่อ Google Sheets (แชร์งานร่วมกับทีม)</span>
+        </h3>
+        <button class="modal-close" id="btnCloseSheetsModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Status Display Card -->
+        <div id="sheetsStatusCard" class="cloud-settings-card" style="margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">สถานะการเชื่อมต่อ</div>
+              <div id="sheetsStatusLabel" style="font-weight: 700; font-size: 0.95rem; margin-top: 0.2rem; color: #475569;">
+                ☁️ ยังไม่ได้เชื่อมต่อ (ทำงานแบบบันทึกเฉพาะในเครื่องนี้)
+              </div>
+            </div>
+            <span id="sheetsStatusBadge" class="cloud-dot" style="width: 12px; height: 12px;"></span>
+          </div>
+          <div id="sheetsStatusDetails" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.4rem;">
+            เมื่อเชื่อมต่อแล้ว ข้อมูลงานจะถูกเก็บลง Google Sheets บน Google Drive และแชร์ให้ทุกคนในทีมใช้งานร่วมกันได้ทันที
+          </div>
+        </div>
+
+        <!-- URL Input & Configuration -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">
+            Google Apps Script Web App URL
+          </label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="url" id="sheetsUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            <button type="button" id="btnTestAndSaveSheets" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+              บันทึกและเชื่อมต่อ
+            </button>
+          </div>
+          <span style="font-size: 0.74rem; color: var(--text-muted);">
+            นำ Web App URL ที่ได้จากการ Deploy สคริปต์ <code>GoogleSheetsAPI.gs</code> มาวางในช่องนี้
+          </span>
+        </div>
+
+        <!-- Data Sync Operations -->
+        <div class="cloud-settings-card" style="margin-bottom: 1rem;">
+          <h4 style="font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem;">🔄 จัดการซิงค์ข้อมูล (Data Sync)</h4>
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <button type="button" id="btnPullFromSheets" class="btn btn-secondary btn-sm" style="flex: 1;">
+              📥 ดึงข้อมูลจาก Google Sheets
+            </button>
+            <button type="button" id="btnPushToSheets" class="btn btn-secondary btn-sm" style="flex: 1;">
+              📤 ส่งข้อมูลในเครื่องขึ้น Google Sheets
+            </button>
+          </div>
+          <div style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.5rem;">
+            <input type="checkbox" id="chkAutoSync" checked style="cursor: pointer;">
+            <label for="chkAutoSync" style="font-size: 0.82rem; cursor: pointer; color: var(--text-main);">
+              ซิงค์อัตโนมัติเมื่อมีการเพิ่ม / แก้ไข / ลบงาน (Auto-sync)
+            </label>
+          </div>
+        </div>
+
+        <!-- Setup Step Guide -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+          <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">
+            📖 วิธีติดตั้งสคริปต์ Google Sheets (ใช้เวลา 2 นาที)
+          </h4>
+
+          <div class="instruction-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              เปิด Google Drive แล้วกด <strong>+ ใหม่ ➔ Google ชีต (Google Sheets)</strong> ใหม่ 1 ไฟล์
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              ที่หน้า Google Sheets ไปที่เมนู <strong>ส่วนขยาย (Extensions) ➔ Apps Script</strong>
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              ลบโค้ดเดิมออกทั้งหมด แล้วเปิดไฟล์ <code>team-todo-app/GoogleSheetsAPI.gs</code> คัดลอกโค้ดทั้งหมดไปวางแทน แล้วกดบันทึก (Ctrl+S)
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              ที่แถบเครื่องมือด้านบน เลือกฟังก์ชัน <code>setupDatabase</code> แล้วกดปุ่ม <strong>"เรียกใช้" (Run)</strong> 1 ครั้ง เพื่อสร้างชีตอัตโนมัติ
+            </div>
+          </div>
+
+          <div class="instruction-step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              กดปุ่มสีน้ำเงิน <strong>การทำให้ใช้งานได้ (Deploy) ➔ รายการใหม่ (New deployment)</strong><br>
+              - เลือกประเภท: <strong>เว็บแอป (Web app)</strong><br>
+              - ผู้ที่มีสิทธิ์เข้าถึง (Who has access): <strong>ทุกคน (Anyone)</strong><br>
+              - กด <strong>ทำให้ใช้งานได้</strong> แล้วคัดลอก <strong>URL เว็บแอป</strong> มาวางในช่องด้านบนนี้ หรือส่งให้ทีมงานเปิดผ่านมือถือได้ทันที!
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseSheetsModalBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Application Script -->
+  <script>
+/**
+ * TeamTask Hub - Main Application Logic
+ * Supports Supervisor Overview & Member Personal Kanban Boards
+ */
+
+// ==========================================================================
+// Storage Keys & Initial Demo Data
+// ==========================================================================
+// (ตัวเลือกแนะนำ) นำ Web App URL ของ Google Sheets มาวางที่นี่
+// เพื่อให้ทุกคนที่เปิดเว็บผ่านลิงก์ (เช่น GitHub Pages) เชื่อมต่อชีตอัตโนมัติทันทีโดยไม่ต้องตั้งค่าเอง
+const DEFAULT_SHEETS_URL = '';
+
+const STORAGE_KEY_TASKS = 'team_tasks_data_v1';
+const STORAGE_KEY_MEMBERS = 'team_members_data_v1';
+const STORAGE_KEY_ROLE = 'team_current_role_v1';
+const STORAGE_KEY_SHEETS_URL = 'team_sheets_api_url_v1';
+const STORAGE_KEY_AUTO_SYNC = 'team_auto_sync_enabled_v1';
+
+// Initial Team Members
+const DEFAULT_MEMBERS = [
+  { id: 'mem1', name: 'สมชาย สายลุย', role: 'ช่างเทคนิคงานเชื่อม', avatarColor: '#2563eb' },
+  { id: 'mem2', name: 'สมศรี มีสุข', role: 'วิศวกรโครงสร้าง', avatarColor: '#7c3aed' },
+  { id: 'mem3', name: 'วรวิทย์ จิตดี', role: 'เจ้าหน้าที่จัดซื้อ', avatarColor: '#059669' },
+  { id: 'mem4', name: 'กิตติพงษ์ มั่นคง', role: 'ผู้ตรวจสอบคุณภาพ (QC)', avatarColor: '#ea580c' }
+];
+
+// Helper to format dates
+function getTodayString(offsetDays = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+}
+
+// Initial Tasks covering different statuses and deadlines
+const DEFAULT_TASKS = [
+  {
+    id: 'task_001',
+    title: 'ตรวจสอบรอยเชื่อมคานเหล็ก H-Beam โครงการเสา C3-C4',
+    description: 'ใช้เครื่องมือ Ultrasonic ตรวจสอบแนวเชื่อมโครงทรัสและคานเหล็กความยาว 12 เมตร พร้อมบันทึกผลลงรายงาน QC',
+    createdDate: getTodayString(-3),
+    deadline: getTodayString(-1), // Overdue
+    status: 'in_progress',
+    assigneeId: 'mem1',
+    priority: 'urgent',
+    blockedReason: '',
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'task_002',
+    title: 'รอผลทดสอบพ่นละอองเกลือ (Salt Spray Test) ชิ้นงานชุบกัลวาไนซ์',
+    description: 'ติดตามผลการทดสอบการกัดกร่อนของตัวอย่างเหล็กชุบสังกะสีตามมาตรฐาน ASTM B117 จากห้องปฏิบัติการภายนอก',
+    createdDate: getTodayString(-4),
+    deadline: getTodayString(1), // Due soon
+    status: 'blocked',
+    assigneeId: 'mem2',
+    priority: 'high',
+    blockedReason: 'ห้องแล็บภายนอกแจ้งว่าเครื่องทดสอบอยู่ระหว่างการสอบเทียบ (Calibration) คาดว่าจะได้ผลตรวจวันศุกร์นี้',
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'task_003',
+    title: 'คำนวณและสั่งซื้อเหล็กแผ่นหนา 12mm จำนวน 40 ตัน',
+    description: 'ประสานงานกับฝ่ายผลิตเพื่อยืนยันสเปกเหล็ก SS400 และส่งใบขอราคา (RFQ) ไปยังผู้ค้าเหล็ก 3 ราย',
+    createdDate: getTodayString(-2),
+    deadline: getTodayString(3),
+    status: 'todo',
+    assigneeId: 'mem3',
+    priority: 'normal',
+    blockedReason: '',
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'task_004',
+    title: 'ตรวจรับงานพ่นสีกันสนิมโครงหลังคาโรงงาน 2',
+    description: 'วัดความหนาของฟิล์มสี (DFT) และตรวจเช็คความสม่ำเสมอของชั้นเคลือบสีรองพื้น Epoxy Zinc Rich',
+    createdDate: getTodayString(-5),
+    deadline: getTodayString(0), // Today
+    status: 'review',
+    assigneeId: 'mem4',
+    priority: 'high',
+    blockedReason: '',
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'task_005',
+    title: 'เตรียมชุดเครื่องมือดัดเหล็กและเปลี่ยนหัวเชื่อม TIG',
+    description: 'ตรวจเช็คความพร้อมของสายส่งแก๊สอาร์กอน และเปลี่ยนหัวทังสเตนใหม่สำหรับการประกอบชิ้นส่วนท่อ',
+    createdDate: getTodayString(-6),
+    deadline: getTodayString(-2),
+    status: 'done',
+    assigneeId: 'mem1',
+    priority: 'normal',
+    blockedReason: '',
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'task_006',
+    title: 'ทบทวนแบบขยายโครงสร้างบันไดหนีไฟ (Shop Drawing)',
+    description: 'ตรวจสอบจุดเชื่อมต่อเสากับตัวอาคารตามข้อกำหนดทางวิศวกรรมโครงสร้าง ก่อนส่งต่อให้ฝ่ายผลิตตัดเหล็ก',
+    createdDate: getTodayString(-1),
+    deadline: getTodayString(2),
+    status: 'todo',
+    assigneeId: 'mem2',
+    priority: 'normal',
+    blockedReason: '',
+    updatedAt: new Date().toISOString()
+  }
+];
+
+// ==========================================================================
+// Application State
+// ==========================================================================
+const state = {
+  currentRole: 'supervisor', // 'supervisor' or member id (e.g. 'mem1')
+  members: [],
+  tasks: [],
+  activeView: 'kanban', // 'kanban' or 'table'
+  filters: {
+    search: '',
+    assignee: 'all',
+    priority: 'all',
+    deadline: 'all'
+  },
+  draggedTaskId: null,
+  pendingBlockedTask: null,
+  // Google Sheets Cloud Sync State
+  sheetsUrl: '',
+  autoSync: true,
+  syncStatus: 'offline', // 'offline' | 'connected' | 'syncing' | 'error'
+  lastSyncTime: null
+};
+
+// ==========================================================================
+// Initialization & Storage
+// ==========================================================================
+function initApp() {
+  loadStoredData();
+  bindEvents();
+  renderApp();
+  initCloudSync();
+}
+
+function loadStoredData() {
+  try {
+    const storedMembers = localStorage.getItem(STORAGE_KEY_MEMBERS);
+    state.members = storedMembers ? JSON.parse(storedMembers) : [...DEFAULT_MEMBERS];
+
+    const storedTasks = localStorage.getItem(STORAGE_KEY_TASKS);
+    state.tasks = storedTasks ? JSON.parse(storedTasks) : [...DEFAULT_TASKS];
+
+    const storedRole = localStorage.getItem(STORAGE_KEY_ROLE);
+    if (storedRole) {
+      state.currentRole = storedRole;
+    }
+
+    const storedSheetsUrl = localStorage.getItem(STORAGE_KEY_SHEETS_URL) || DEFAULT_SHEETS_URL;
+    if (storedSheetsUrl) {
+      state.sheetsUrl = storedSheetsUrl;
+      state.syncStatus = 'connected';
+    }
+
+    const storedAutoSync = localStorage.getItem(STORAGE_KEY_AUTO_SYNC);
+    if (storedAutoSync !== null) {
+      state.autoSync = storedAutoSync === 'true';
+    }
+  } catch (err) {
+    console.error('Error loading stored data:', err);
+    state.members = [...DEFAULT_MEMBERS];
+    state.tasks = [...DEFAULT_TASKS];
+    state.currentRole = 'supervisor';
+  }
+}
+
+function saveTasks() {
+  try {
+    localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(state.tasks));
+  } catch (err) {
+    console.error('Error saving tasks:', err);
+    showToast('ไม่สามารถบันทึกข้อมูลลงเครื่องได้', 'error');
+  }
+}
+
+function saveMembers() {
+  try {
+    localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(state.members));
+  } catch (err) {
+    console.error('Error saving members:', err);
+  }
+}
+
+function saveRole(role) {
+  state.currentRole = role;
+  try {
+    localStorage.setItem(STORAGE_KEY_ROLE, role);
+  } catch (err) {
+    console.error('Error saving role:', err);
+  }
+}
+
+// ==========================================================================
+// Deadline & Status Calculation Helpers
+// ==========================================================================
+function getDeadlineInfo(deadlineStr, status) {
+  if (status === 'done') {
+    return { type: 'done', label: 'เสร็จเรียบร้อย', badgeClass: 'done' };
+  }
+
+  if (!deadlineStr) {
+    return { type: 'normal', label: 'ไม่ระบุ', badgeClass: 'normal' };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const deadline = new Date(deadlineStr);
+  deadline.setHours(0, 0, 0, 0);
+
+  const diffTime = deadline - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return {
+      type: 'overdue',
+      label: `เกินกำหนด ${Math.abs(diffDays)} วัน`,
+      badgeClass: 'overdue',
+      diffDays
+    };
+  } else if (diffDays === 0) {
+    return {
+      type: 'due_soon',
+      label: 'ครบกำหนดวันนี้!',
+      badgeClass: 'soon',
+      diffDays
+    };
+  } else if (diffDays <= 2) {
+    return {
+      type: 'due_soon',
+      label: `อีก ${diffDays} วัน`,
+      badgeClass: 'soon',
+      diffDays
+    };
+  } else {
+    return {
+      type: 'normal',
+      label: `อีก ${diffDays} วัน`,
+      badgeClass: 'normal',
+      diffDays
+    };
+  }
+}
+
+function getMemberById(id) {
+  return state.members.find(m => m.id === id) || {
+    id: 'unknown',
+    name: 'ยังไม่ระบุ',
+    role: 'ทีมงาน',
+    avatarColor: '#64748b'
+  };
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
+
+function getStatusTitle(status) {
+  switch (status) {
+    case 'todo': return '📝 รอดำเนินการ';
+    case 'in_progress': return '⚙️ กำลังทำ';
+    case 'blocked': return '⚠️ ติดปัญหา / ระงับ';
+    case 'review': return '🔍 รอตรวจรับ';
+    case 'done': return '✅ เสร็จสิ้น';
+    default: return status;
+  }
+}
+
+function getPriorityBadge(priority) {
+  switch (priority) {
+    case 'urgent':
+      return `<span class="priority-tag urgent">🔥 ด่วนมาก</span>`;
+    case 'high':
+      return `<span class="priority-tag high">สูง</span>`;
+    case 'normal':
+      return `<span class="priority-tag normal">ปกติ</span>`;
+    case 'low':
+      return `<span class="priority-tag low">ต่ำ</span>`;
+    default:
+      return `<span class="priority-tag normal">ปกติ</span>`;
+  }
+}
+
+// Format Thai Date string (e.g. 20 พ.ย. 2026)
+function formatThaiDate(dateStr) {
+  if (!dateStr) return '-';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const thaiMonths = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+  ];
+  return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+
+// ==========================================================================
+// Filtering & Scope Logic
+// ==========================================================================
+function getScopedTasks() {
+  // If Member mode: only show tasks assigned to this specific member
+  if (state.currentRole !== 'supervisor') {
+    return state.tasks.filter(t => t.assigneeId === state.currentRole);
+  }
+  return state.tasks;
+}
+
+function getFilteredTasks() {
+  const scoped = getScopedTasks();
+  const { search, assignee, priority, deadline } = state.filters;
+
+  return scoped.filter(task => {
+    // Search filter (title, description, assignee name)
+    if (search) {
+      const q = search.toLowerCase();
+      const member = getMemberById(task.assigneeId);
+      const titleMatch = (task.title || '').toLowerCase().includes(q);
+      const descMatch = (task.description || '').toLowerCase().includes(q);
+      const memberMatch = (member.name || '').toLowerCase().includes(q);
+      if (!titleMatch && !descMatch && !memberMatch) return false;
+    }
+
+    // Assignee filter (in supervisor view)
+    if (state.currentRole === 'supervisor' && assignee !== 'all') {
+      if (task.assigneeId !== assignee) return false;
+    }
+
+    // Priority filter
+    if (priority !== 'all') {
+      if (task.priority !== priority) return false;
+    }
+
+    // Deadline filter
+    if (deadline !== 'all') {
+      const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+      if (deadline === 'overdue' && deadlineInfo.type !== 'overdue') return false;
+      if (deadline === 'due_soon' && deadlineInfo.type !== 'due_soon') return false;
+      if (deadline === 'on_track' && deadlineInfo.type !== 'normal' && deadlineInfo.type !== 'done') return false;
+    }
+
+    return true;
+  });
+}
+
+// ==========================================================================
+// Main Render Pipeline
+// ==========================================================================
+function renderApp() {
+  renderProfileSwitcher();
+  renderRoleBanner();
+  renderKPIs();
+  renderAssigneeFilterOptions();
+
+  if (state.currentRole === 'supervisor') {
+    document.getElementById('supervisorSection').style.display = 'block';
+    renderWorkloadSection();
+  } else {
+    document.getElementById('supervisorSection').style.display = 'none';
+  }
+
+  if (state.activeView === 'kanban') {
+    document.getElementById('kanbanBoardView').style.display = 'grid';
+    document.getElementById('tableViewSection').style.display = 'none';
+    renderKanbanBoard();
+  } else {
+    document.getElementById('kanbanBoardView').style.display = 'none';
+    document.getElementById('tableViewSection').style.display = 'block';
+    renderTableView();
+  }
+}
+
+// ==========================================================================
+// Profile Switcher & Header UI
+// ==========================================================================
+function renderProfileSwitcher() {
+  const currentAvatar = document.getElementById('currentAvatar');
+  const currentName = document.getElementById('currentName');
+  const currentRoleTag = document.getElementById('currentRoleTag');
+  const memberMenuList = document.getElementById('memberMenuList');
+
+  if (state.currentRole === 'supervisor') {
+    currentAvatar.className = 'profile-avatar supervisor';
+    currentAvatar.style.background = '#1e293b';
+    currentAvatar.textContent = 'ผบ';
+    currentName.textContent = 'หัวหน้างาน (Supervisor)';
+    currentRoleTag.textContent = 'เห็นภาพรวมของทุกคน';
+  } else {
+    const member = getMemberById(state.currentRole);
+    currentAvatar.className = 'profile-avatar';
+    currentAvatar.style.background = member.avatarColor || '#4f46e5';
+    currentAvatar.textContent = getInitials(member.name);
+    currentName.textContent = member.name;
+    currentRoleTag.textContent = member.role || 'ทีมงาน';
+  }
+
+  // Populate Member Switcher List
+  let html = '';
+  state.members.forEach(m => {
+    const isActive = state.currentRole === m.id ? 'active' : '';
+    const taskCount = state.tasks.filter(t => t.assigneeId === m.id && t.status !== 'done').length;
+    html += `
+      <div class="menu-item ${isActive}" data-role="${m.id}">
+        <div class="avatar-circle" style="background: ${m.avatarColor || '#4f46e5'};">
+          ${getInitials(m.name)}
+        </div>
+        <div style="flex: 1;">
+          <div style="font-weight: 600;">${escapeHTML(m.name)}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">${escapeHTML(m.role || 'ทีมงาน')} • งานค้าง ${taskCount} รายการ</div>
+        </div>
+      </div>
+    `;
+  });
+  memberMenuList.innerHTML = html;
+}
+
+// ==========================================================================
+// Role Banner Rendering
+// ==========================================================================
+function renderRoleBanner() {
+  const badge = document.getElementById('bannerBadge');
+  const title = document.getElementById('bannerTitle');
+  const desc = document.getElementById('bannerDesc');
+  const lblBtnQuickAdd = document.getElementById('lblBtnQuickAdd');
+  const filterAssignee = document.getElementById('filterAssignee');
+
+  if (state.currentRole === 'supervisor') {
+    badge.className = 'role-banner-badge supervisor';
+    badge.innerHTML = '👔';
+    title.textContent = 'หน้าหัวหน้างาน - ภาพรวมของทีมงานทั้งหมด';
+    desc.textContent = 'ติดตามสถานะงาน มอบหมายงาน และตรวจสอบความคืบหน้าของลูกทีมทุกคนแบบเรียลไทม์';
+    lblBtnQuickAdd.textContent = 'มอบหมายงานใหม่';
+    filterAssignee.style.display = 'inline-block';
+  } else {
+    const member = getMemberById(state.currentRole);
+    badge.className = 'role-banner-badge';
+    badge.style.background = member.avatarColor ? `${member.avatarColor}20` : '#e0e7ff';
+    badge.style.color = member.avatarColor || '#4f46e5';
+    badge.innerHTML = '👤';
+    title.textContent = `บอร์ดงานของ ${member.name} (${member.role || 'ทีมงาน'})`;
+    desc.textContent = 'จัดการรายการงานของคุณ ลากวางเพื่อปรับสถานะ หรือแจ้งปัญหาที่พบได้ทันที';
+    lblBtnQuickAdd.textContent = '+ เพิ่มงานของฉัน';
+    filterAssignee.style.display = 'none'; // Hide assignee filter in individual view
+  }
+}
+
+// ==========================================================================
+// KPIs Rendering
+// ==========================================================================
+function renderKPIs() {
+  const scoped = getScopedTasks();
+
+  const total = scoped.length;
+  const todo = scoped.filter(t => t.status === 'todo').length;
+  const progress = scoped.filter(t => t.status === 'in_progress').length;
+  const blocked = scoped.filter(t => t.status === 'blocked').length;
+  const review = scoped.filter(t => t.status === 'review').length;
+  const done = scoped.filter(t => t.status === 'done').length;
+
+  // Overdue count
+  const overdue = scoped.filter(t => {
+    return getDeadlineInfo(t.deadline, t.status).type === 'overdue';
+  }).length;
+
+  document.getElementById('kpiTotal').textContent = total;
+  document.getElementById('kpiTodo').textContent = todo;
+  document.getElementById('kpiProgress').textContent = progress;
+  document.getElementById('kpiBlocked').textContent = blocked;
+  document.getElementById('kpiReview').textContent = review;
+  document.getElementById('kpiDone').textContent = done;
+  document.getElementById('kpiOverdue').textContent = overdue;
+
+  // Visual pulse on blocked or overdue cards if > 0
+  const blockedCard = document.getElementById('kpiBlockedCard');
+  if (blocked > 0) {
+    blockedCard.classList.add('pulse-badge');
+  } else {
+    blockedCard.classList.remove('pulse-badge');
+  }
+
+  const overdueCard = document.getElementById('kpiOverdueCard');
+  if (overdue > 0) {
+    overdueCard.classList.add('pulse-badge');
+  } else {
+    overdueCard.classList.remove('pulse-badge');
+  }
+}
+
+// ==========================================================================
+// Team Workload Breakdown Section (Supervisor View)
+// ==========================================================================
+function renderWorkloadSection() {
+  const grid = document.getElementById('workloadGrid');
+  let html = '';
+
+  state.members.forEach(member => {
+    const memberTasks = state.tasks.filter(t => t.assigneeId === member.id);
+    const total = memberTasks.length;
+    const done = memberTasks.filter(t => t.status === 'done').length;
+    const progress = memberTasks.filter(t => t.status === 'in_progress').length;
+    const blocked = memberTasks.filter(t => t.status === 'blocked').length;
+    const review = memberTasks.filter(t => t.status === 'review').length;
+    const todo = memberTasks.filter(t => t.status === 'todo').length;
+    const overdue = memberTasks.filter(t => getDeadlineInfo(t.deadline, t.status).type === 'overdue').length;
+
+    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    html += `
+      <div class="member-card" data-member-id="${member.id}" title="คลิกเพื่อสลับไปดูบอร์ดของ ${escapeHTML(member.name)}">
+        <div class="member-card-header">
+          <div class="member-card-user">
+            <div class="member-avatar-lg" style="background: ${member.avatarColor || '#4f46e5'};">
+              ${getInitials(member.name)}
+            </div>
+            <div class="member-card-details">
+              <h4>${escapeHTML(member.name)}</h4>
+              <span>${escapeHTML(member.role || 'ทีมงาน')}</span>
+            </div>
+          </div>
+          <div class="member-task-count">
+            ${done}/${total} เสร็จสิ้น
+          </div>
+        </div>
+
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+        </div>
+
+        <div class="member-status-pills">
+          <span class="status-chip todo">รอดำเนินการ: ${todo}</span>
+          <span class="status-chip progress">กำลังทำ: ${progress}</span>
+          ${blocked > 0 ? `<span class="status-chip blocked">⚠️ ติดปัญหา: ${blocked}</span>` : ''}
+          ${review > 0 ? `<span class="status-chip review">รอตรวจ: ${review}</span>` : ''}
+          ${overdue > 0 ? `<span class="status-chip overdue">🚨 เกินกำหนด: ${overdue}</span>` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+
+  // Add click to switch profile to that member
+  grid.querySelectorAll('.member-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const mId = card.getAttribute('data-member-id');
+      saveRole(mId);
+      renderApp();
+      showToast(`สลับไปยังบอร์ดของ ${getMemberById(mId).name}`, 'success');
+    });
+  });
+}
+
+// ==========================================================================
+// Kanban Board Rendering (5 Columns)
+// ==========================================================================
+function renderKanbanBoard() {
+  const filteredTasks = getFilteredTasks();
+
+  const columns = {
+    todo: { countEl: document.getElementById('countTodo'), listEl: document.getElementById('cardsTodo'), tasks: [] },
+    in_progress: { countEl: document.getElementById('countProgress'), listEl: document.getElementById('cardsProgress'), tasks: [] },
+    blocked: { countEl: document.getElementById('countBlocked'), listEl: document.getElementById('cardsBlocked'), tasks: [] },
+    review: { countEl: document.getElementById('countReview'), listEl: document.getElementById('cardsReview'), tasks: [] },
+    done: { countEl: document.getElementById('countDone'), listEl: document.getElementById('cardsDone'), tasks: [] }
+  };
+
+  // Group tasks into status columns
+  filteredTasks.forEach(task => {
+    const colKey = columns[task.status] ? task.status : 'todo';
+    columns[colKey].tasks.push(task);
+  });
+
+  // Render cards in each column
+  Object.keys(columns).forEach(status => {
+    const col = columns[status];
+    col.countEl.textContent = col.tasks.length;
+
+    if (col.tasks.length === 0) {
+      col.listEl.innerHTML = `
+        <div class="empty-column-placeholder">
+          <span>ยังไม่มีงานในช่องนี้</span>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    col.tasks.forEach(task => {
+      const member = getMemberById(task.assigneeId);
+      const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+
+      html += `
+        <div class="task-card" draggable="true" data-task-id="${task.id}">
+          <div class="card-header-meta">
+            ${getPriorityBadge(task.priority)}
+            <span style="font-size: 0.72rem; color: var(--text-light);">
+              มอบหมาย: ${formatThaiDate(task.createdDate)}
+            </span>
+          </div>
+
+          <div class="card-title">${escapeHTML(task.title)}</div>
+
+          ${task.description ? `<div class="card-description">${escapeHTML(task.description)}</div>` : ''}
+
+          ${task.status === 'blocked' && task.blockedReason ? `
+            <div class="blocked-reason-box">
+              <span>⚠️ <strong>สาเหตุ:</strong> ${escapeHTML(task.blockedReason)}</span>
+            </div>
+          ` : ''}
+
+          <div class="card-footer">
+            <div class="card-dates">
+              <span class="deadline-badge ${deadlineInfo.badgeClass}">
+                ${deadlineInfo.type === 'overdue' ? '🚨' : deadlineInfo.type === 'due_soon' ? '⏰' : deadlineInfo.type === 'done' ? '✅' : '📅'}
+                ${formatThaiDate(task.deadline)} (${deadlineInfo.label})
+              </span>
+            </div>
+
+            <div class="card-assignee" title="ผู้รับผิดชอบ: ${escapeHTML(member.name)}">
+              <div class="assignee-avatar-sm" style="background: ${member.avatarColor || '#4f46e5'};">
+                ${getInitials(member.name)}
+              </div>
+              <span style="font-size: 0.74rem; font-weight: 500;">${escapeHTML(member.name.split(' ')[0])}</span>
+            </div>
+          </div>
+
+          <div class="card-actions-row">
+            <button class="btn-card-action btn-quick-view" data-id="${task.id}" title="เปิดดูรายละเอียด">
+              👁️ ดูงาน
+            </button>
+            <button class="btn-card-action btn-quick-move" data-id="${task.id}" title="เปลี่ยนสถานะ">
+              🔄 เลื่อนสถานะ
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    col.listEl.innerHTML = html;
+  });
+
+  attachKanbanCardEvents();
+}
+
+// ==========================================================================
+// Kanban Drag & Drop and Card Actions
+// ==========================================================================
+function attachKanbanCardEvents() {
+  const cards = document.querySelectorAll('.task-card');
+  const columns = document.querySelectorAll('.kanban-column');
+
+  // Dragstart / Dragend
+  cards.forEach(card => {
+    card.addEventListener('dragstart', (e) => {
+      state.draggedTaskId = card.getAttribute('data-task-id');
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', state.draggedTaskId);
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      state.draggedTaskId = null;
+      columns.forEach(col => col.classList.remove('drag-over'));
+    });
+  });
+
+  // Quick Action Buttons on Cards
+  document.querySelectorAll('.btn-quick-view').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      openTaskDetailModal(id);
+    });
+  });
+
+  document.querySelectorAll('.btn-quick-move').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      showQuickStatusPicker(id, btn);
+    });
+  });
+
+  // Double click card to open details
+  cards.forEach(card => {
+    card.addEventListener('dblclick', () => {
+      const id = card.getAttribute('data-task-id');
+      openTaskDetailModal(id);
+    });
+  });
+}
+
+function attachKanbanColumnDropEvents() {
+  const columns = document.querySelectorAll('.kanban-column');
+
+  columns.forEach(column => {
+    column.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      column.classList.add('drag-over');
+    });
+
+    column.addEventListener('dragleave', (e) => {
+      if (!column.contains(e.relatedTarget)) {
+        column.classList.remove('drag-over');
+      }
+    });
+
+    column.addEventListener('drop', (e) => {
+      e.preventDefault();
+      column.classList.remove('drag-over');
+
+      const taskId = e.dataTransfer.getData('text/plain') || state.draggedTaskId;
+      const newStatus = column.getAttribute('data-status');
+
+      if (taskId && newStatus) {
+        handleTaskStatusChange(taskId, newStatus);
+      }
+    });
+  });
+}
+
+// Quick status selector popover or cycle
+function showQuickStatusPicker(taskId, targetElement) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const statuses = [
+    { key: 'todo', label: '📝 รอดำเนินการ' },
+    { key: 'in_progress', label: '⚙️ กำลังทำ' },
+    { key: 'blocked', label: '⚠️ ติดปัญหา / ระงับ' },
+    { key: 'review', label: '🔍 รอตรวจรับ' },
+    { key: 'done', label: '✅ เสร็จสิ้น' }
+  ];
+
+  // Simple next-status prompt or alert
+  const currentIdx = statuses.findIndex(s => s.key === task.status);
+  const nextStatus = statuses[(currentIdx + 1) % statuses.length];
+
+  handleTaskStatusChange(taskId, nextStatus.key);
+}
+
+function handleTaskStatusChange(taskId, newStatus) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  if (task.status === newStatus) return;
+
+  // If moving to "blocked", ask for reason!
+  if (newStatus === 'blocked') {
+    state.pendingBlockedTask = { taskId, newStatus };
+    openBlockedPromptModal(task.blockedReason || '');
+    return;
+  }
+
+  // Update status directly
+  task.status = newStatus;
+  task.updatedAt = new Date().toISOString();
+  saveTasks();
+  renderApp();
+  showToast(`อัปเดตสถานะเป็น "${getStatusTitle(newStatus)}" แล้ว`, 'success');
+  autoSyncTask(task);
+}
+
+// ==========================================================================
+// Table View Rendering
+// ==========================================================================
+function renderTableView() {
+  const tbody = document.getElementById('tableBody');
+  const filteredTasks = getFilteredTasks();
+
+  if (filteredTasks.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-light);">
+          ไม่พบรายการงานที่ตรงกับเงื่อนไขการค้นหา
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  let html = '';
+  filteredTasks.forEach(task => {
+    const member = getMemberById(task.assigneeId);
+    const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+
+    html += `
+      <tr>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main); margin-bottom: 0.2rem;">
+            ${escapeHTML(task.title)}
+          </div>
+          <div style="font-size: 0.76rem; color: var(--text-muted); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${escapeHTML(task.description || '-')}
+          </div>
+          ${task.status === 'blocked' && task.blockedReason ? `
+            <div style="font-size: 0.72rem; color: #dc2626; margin-top: 0.2rem;">
+              ⚠️ ปัญหา: ${escapeHTML(task.blockedReason)}
+            </div>
+          ` : ''}
+        </td>
+
+        <td>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <div class="assignee-avatar-sm" style="background: ${member.avatarColor || '#4f46e5'};">
+              ${getInitials(member.name)}
+            </div>
+            <div>
+              <div style="font-weight: 500;">${escapeHTML(member.name)}</div>
+              <div style="font-size: 0.7rem; color: var(--text-muted);">${escapeHTML(member.role || '')}</div>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          <select class="form-select table-status-select" data-id="${task.id}" style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">
+            <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>📝 รอดำเนินการ</option>
+            <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>⚙️ กำลังทำ</option>
+            <option value="blocked" ${task.status === 'blocked' ? 'selected' : ''}>⚠️ ติดปัญหา</option>
+            <option value="review" ${task.status === 'review' ? 'selected' : ''}>🔍 รอตรวจรับ</option>
+            <option value="done" ${task.status === 'done' ? 'selected' : ''}>✅ เสร็จสิ้น</option>
+          </select>
+        </td>
+
+        <td>
+          ${getPriorityBadge(task.priority)}
+        </td>
+
+        <td style="font-size: 0.8rem; color: var(--text-muted);">
+          ${formatThaiDate(task.createdDate)}
+        </td>
+
+        <td>
+          <span class="deadline-badge ${deadlineInfo.badgeClass}">
+            ${deadlineInfo.type === 'overdue' ? '🚨' : deadlineInfo.type === 'due_soon' ? '⏰' : deadlineInfo.type === 'done' ? '✅' : '📅'}
+            ${formatThaiDate(task.deadline)}
+          </span>
+        </td>
+
+        <td style="text-align: center;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+            <button class="btn btn-secondary btn-sm btn-icon" onclick="openTaskDetailModal('${task.id}')" title="ดูรายละเอียด">
+              👁️
+            </button>
+            <button class="btn btn-secondary btn-sm btn-icon" onclick="openTaskFormModal('${task.id}')" title="แก้ไข">
+              ✏️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+
+  // Attach status change on table selects
+  tbody.querySelectorAll('.table-status-select').forEach(select => {
+    select.addEventListener('change', (e) => {
+      const taskId = select.getAttribute('data-id');
+      const newStatus = select.value;
+      handleTaskStatusChange(taskId, newStatus);
+    });
+  });
+}
+
+// ==========================================================================
+// Modals: Task Create / Edit
+// ==========================================================================
+function openTaskFormModal(taskId = null) {
+  const modal = document.getElementById('taskModal');
+  const modalTitle = document.getElementById('taskModalTitle');
+  const form = document.getElementById('taskForm');
+  const assigneeSelect = document.getElementById('taskFormAssignee');
+  const blockedGroup = document.getElementById('groupBlockedReason');
+
+  // Populate Assignee Select
+  let assigneeHtml = '';
+  state.members.forEach(m => {
+    assigneeHtml += `<option value="${m.id}">${escapeHTML(m.name)} (${escapeHTML(m.role || 'ทีมงาน')})</option>`;
+  });
+  assigneeSelect.innerHTML = assigneeHtml;
+
+  // Toggle blocked reason field visibility on status change
+  const statusSelect = document.getElementById('taskFormStatus');
+  statusSelect.onchange = () => {
+    blockedGroup.style.display = statusSelect.value === 'blocked' ? 'block' : 'none';
+  };
+
+  if (taskId) {
+    // Edit existing task
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    modalTitle.innerHTML = `<span>แก้ไขข้อมูลงาน</span>`;
+    document.getElementById('taskFormId').value = task.id;
+    document.getElementById('taskFormTitle').value = task.title;
+    document.getElementById('taskFormDesc').value = task.description || '';
+    document.getElementById('taskFormAssignee').value = task.assigneeId;
+    document.getElementById('taskFormPriority').value = task.priority || 'normal';
+    document.getElementById('taskFormCreatedDate').value = task.createdDate || getTodayString();
+    document.getElementById('taskFormDeadline').value = task.deadline || getTodayString(3);
+    document.getElementById('taskFormStatus').value = task.status;
+    document.getElementById('taskFormBlockedReason').value = task.blockedReason || '';
+
+    blockedGroup.style.display = task.status === 'blocked' ? 'block' : 'none';
+  } else {
+    // Create new task
+    modalTitle.innerHTML = `<span>สร้างงานใหม่</span>`;
+    form.reset();
+    document.getElementById('taskFormId').value = '';
+    document.getElementById('taskFormCreatedDate').value = getTodayString();
+    document.getElementById('taskFormDeadline').value = getTodayString(3);
+
+    // If current user is a team member, default assignee to themselves!
+    if (state.currentRole !== 'supervisor') {
+      assigneeSelect.value = state.currentRole;
+    }
+
+    document.getElementById('taskFormStatus').value = 'todo';
+    blockedGroup.style.display = 'none';
+  }
+
+  modal.classList.add('active');
+}
+
+function closeTaskFormModal() {
+  document.getElementById('taskModal').classList.remove('active');
+}
+
+function handleSaveTaskForm(e) {
+  e.preventDefault();
+
+  const taskId = document.getElementById('taskFormId').value;
+  const title = document.getElementById('taskFormTitle').value.trim();
+  const description = document.getElementById('taskFormDesc').value.trim();
+  const assigneeId = document.getElementById('taskFormAssignee').value;
+  const priority = document.getElementById('taskFormPriority').value;
+  const createdDate = document.getElementById('taskFormCreatedDate').value;
+  const deadline = document.getElementById('taskFormDeadline').value;
+  const status = document.getElementById('taskFormStatus').value;
+  const blockedReason = document.getElementById('taskFormBlockedReason').value.trim();
+
+  if (!title) {
+    showToast('กรุณาระบุชื่องาน', 'warning');
+    return;
+  }
+
+  if (status === 'blocked' && !blockedReason) {
+    showToast('กรุณาระบุสาเหตุที่ติดปัญหา', 'warning');
+    return;
+  }
+
+  if (taskId) {
+    // Update
+    const task = state.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.title = title;
+      task.description = description;
+      task.assigneeId = assigneeId;
+      task.priority = priority;
+      task.createdDate = createdDate;
+      task.deadline = deadline;
+      task.status = status;
+      task.blockedReason = status === 'blocked' ? blockedReason : '';
+      task.updatedAt = new Date().toISOString();
+      showToast('แก้ไขข้อมูลงานเรียบร้อยแล้ว', 'success');
+      autoSyncTask(task);
+    }
+  } else {
+    // Create new
+    const newTask = {
+      id: 'task_' + Date.now(),
+      title,
+      description,
+      assigneeId,
+      priority,
+      createdDate,
+      deadline,
+      status,
+      blockedReason: status === 'blocked' ? blockedReason : '',
+      updatedAt: new Date().toISOString()
+    };
+    state.tasks.unshift(newTask);
+    showToast('สร้างงานใหม่เรียบร้อยแล้ว', 'success');
+    autoSyncTask(newTask);
+  }
+
+  saveTasks();
+  closeTaskFormModal();
+  renderApp();
+}
+
+// ==========================================================================
+// Modals: Task Detail View
+// ==========================================================================
+function openTaskDetailModal(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const modal = document.getElementById('taskDetailModal');
+  const member = getMemberById(task.assigneeId);
+  const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+
+  document.getElementById('detailFullTitle').textContent = task.title;
+  document.getElementById('detailDescription').textContent = task.description || '(ไม่มีรายละเอียดเพิ่มเติม)';
+
+  // Blocked Alert
+  const blockedAlert = document.getElementById('detailBlockedAlert');
+  if (task.status === 'blocked' && task.blockedReason) {
+    blockedAlert.style.display = 'flex';
+    document.getElementById('detailBlockedReasonText').textContent = task.blockedReason;
+  } else {
+    blockedAlert.style.display = 'none';
+  }
+
+  // Meta Info
+  document.getElementById('detailAssignee').innerHTML = `
+    <div class="assignee-avatar-sm" style="background: ${member.avatarColor || '#4f46e5'};">
+      ${getInitials(member.name)}
+    </div>
+    <span>${escapeHTML(member.name)} (${escapeHTML(member.role || 'ทีมงาน')})</span>
+  `;
+
+  document.getElementById('detailStatus').innerHTML = `
+    <strong>${getStatusTitle(task.status)}</strong>
+  `;
+
+  document.getElementById('detailCreatedDate').textContent = formatThaiDate(task.createdDate);
+
+  document.getElementById('detailDeadline').innerHTML = `
+    <span class="deadline-badge ${deadlineInfo.badgeClass}">
+      ${formatThaiDate(task.deadline)} (${deadlineInfo.label})
+    </span>
+  `;
+
+  document.getElementById('detailPriority').innerHTML = getPriorityBadge(task.priority);
+
+  // Edit & Delete button actions
+  document.getElementById('btnEditTaskFromDetail').onclick = () => {
+    closeTaskDetailModal();
+    openTaskFormModal(task.id);
+  };
+
+  document.getElementById('btnChangeStatusQuick').onclick = (e) => {
+    showQuickStatusPicker(task.id, e.target);
+    closeTaskDetailModal();
+  };
+
+  document.getElementById('btnDeleteTask').onclick = () => {
+    if (confirm(`คุณต้องการลบงาน "${task.title}" ใช่หรือไม่?`)) {
+      const deletedId = task.id;
+      state.tasks = state.tasks.filter(t => t.id !== deletedId);
+      saveTasks();
+      closeTaskDetailModal();
+      renderApp();
+      showToast('ลบรายการงานเรียบร้อยแล้ว', 'success');
+      autoSyncDeleteTask(deletedId);
+    }
+  };
+
+  modal.classList.add('active');
+}
+
+function closeTaskDetailModal() {
+  document.getElementById('taskDetailModal').classList.remove('active');
+}
+
+// ==========================================================================
+// Modals: Blocked Reason Prompt
+// ==========================================================================
+function openBlockedPromptModal(existingReason = '') {
+  const modal = document.getElementById('blockedReasonModal');
+  const input = document.getElementById('promptBlockedReasonInput');
+  input.value = existingReason;
+  modal.classList.add('active');
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeBlockedPromptModal() {
+  document.getElementById('blockedReasonModal').classList.remove('active');
+  state.pendingBlockedTask = null;
+}
+
+function confirmBlockedPrompt() {
+  if (!state.pendingBlockedTask) return;
+
+  const reason = document.getElementById('promptBlockedReasonInput').value.trim();
+  if (!reason) {
+    showToast('กรุณาระบุสาเหตุที่ติดปัญหา', 'warning');
+    return;
+  }
+
+  const { taskId, newStatus } = state.pendingBlockedTask;
+  const task = state.tasks.find(t => t.id === taskId);
+  if (task) {
+    task.status = newStatus;
+    task.blockedReason = reason;
+    task.updatedAt = new Date().toISOString();
+    saveTasks();
+    renderApp();
+    showToast('บันทึกสถานะติดปัญหาเรียบร้อยแล้ว', 'success');
+    autoSyncTask(task);
+  }
+
+  closeBlockedPromptModal();
+}
+
+// ==========================================================================
+// Modals: Team Management
+// ==========================================================================
+function openTeamModal() {
+  renderTeamMemberList();
+  document.getElementById('teamModal').classList.add('active');
+}
+
+function closeTeamModal() {
+  document.getElementById('teamModal').classList.remove('active');
+}
+
+function renderTeamMemberList() {
+  const list = document.getElementById('teamMemberList');
+  let html = '';
+
+  state.members.forEach(member => {
+    const taskCount = state.tasks.filter(t => t.assigneeId === member.id).length;
+    html += `
+      <div class="member-manage-item">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <div class="assignee-avatar-sm" style="background:${member.avatarColor || '#4f46e5'};">
+            ${getInitials(member.name)}
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.88rem;">${escapeHTML(member.name)}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(member.role || 'ทีมงาน')} • งานทั้งหมด: ${taskCount}</div>
+          </div>
+        </div>
+        <div>
+          ${state.members.length > 1 ? `
+            <button class="btn btn-secondary btn-sm" style="color:#dc2626; padding:0.2rem 0.5rem;" onclick="deleteMember('${member.id}')">
+              ลบ
+            </button>
+          ` : '<span style="font-size:0.7rem; color:var(--text-light);">อย่างน้อย 1 คน</span>'}
+        </div>
+      </div>
+    `;
+  });
+
+  list.innerHTML = html;
+}
+
+function handleAddMember(e) {
+  e.preventDefault();
+  const name = document.getElementById('newMemberName').value.trim();
+  const role = document.getElementById('newMemberRole').value.trim();
+
+  if (!name || !role) {
+    showToast('กรุณากรอกชื่อและตำแหน่งให้ครบถ้วน', 'warning');
+    return;
+  }
+
+  const colors = ['#2563eb', '#7c3aed', '#059669', '#ea580c', '#d97706', '#0891b2', '#e11d48'];
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+  const newMember = {
+    id: 'mem_' + Date.now(),
+    name,
+    role,
+    avatarColor: randomColor
+  };
+
+  state.members.push(newMember);
+  saveMembers();
+  renderTeamMemberList();
+  renderApp();
+  document.getElementById('addMemberForm').reset();
+  showToast(`เพิ่มสมาชิก "${name}" สำเร็จ`, 'success');
+  autoSyncMember(newMember);
+}
+
+function deleteMember(memberId) {
+  const member = getMemberById(memberId);
+  const taskCount = state.tasks.filter(t => t.assigneeId === memberId).length;
+
+  if (taskCount > 0) {
+    if (!confirm(`คุณ ${member.name} ยังมีงานค้างอยู่ ${taskCount} งาน คุณแน่ใจหรือไม่ที่จะลบ? งานจะถูกโอนไปให้สมาชิกคนแรกแทน`)) {
+      return;
+    }
+    // Reassign tasks to first remaining member
+    const targetMember = state.members.find(m => m.id !== memberId);
+    if (targetMember) {
+      state.tasks.forEach(t => {
+        if (t.assigneeId === memberId) {
+          t.assigneeId = targetMember.id;
+          autoSyncTask(t);
+        }
+      });
+      saveTasks();
+    }
+  } else {
+    if (!confirm(`คุณต้องการลบคุณ "${member.name}" ออกจากทีมใช่หรือไม่?`)) {
+      return;
+    }
+  }
+
+  state.members = state.members.filter(m => m.id !== memberId);
+  if (state.currentRole === memberId) {
+    saveRole('supervisor');
+  }
+
+  saveMembers();
+  renderTeamMemberList();
+  renderApp();
+  showToast(`ลบคุณ ${member.name} แล้ว`, 'success');
+  autoSyncDeleteMember(memberId);
+}
+
+// ==========================================================================
+// Modals: Export & Backup (CSV & JSON)
+// ==========================================================================
+function openExportModal() {
+  document.getElementById('exportImportModal').classList.add('active');
+}
+
+function closeExportModal() {
+  document.getElementById('exportImportModal').classList.remove('active');
+}
+
+function exportToCSV() {
+  const rows = [
+    ['รหัสงาน', 'ชื่องาน', 'รายละเอียด', 'ผู้รับผิดชอบ', 'ตำแหน่ง', 'ระดับความสำคัญ', 'วันที่มอบหมาย', 'กำหนดส่ง (Deadline)', 'สถานะ', 'สาเหตุที่ติดปัญหา (ถ้ามี)']
+  ];
+
+  state.tasks.forEach(task => {
+    const member = getMemberById(task.assigneeId);
+    rows.push([
+      task.id,
+      task.title,
+      task.description || '',
+      member.name,
+      member.role || '',
+      task.priority || 'normal',
+      task.createdDate || '',
+      task.deadline || '',
+      getStatusTitle(task.status),
+      task.blockedReason || ''
+    ]);
+  });
+
+  // Convert array to CSV string
+  const csvContent = rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+
+  // Add UTF-8 BOM so Thai characters open cleanly in Microsoft Excel!
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `รายงานรายการงาน_${getTodayString()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('ส่งออกไฟล์ Excel (CSV) สำเร็จแล้ว', 'success');
+}
+
+function exportToJSON() {
+  const data = {
+    appName: 'TeamTask Hub',
+    exportedAt: new Date().toISOString(),
+    members: state.members,
+    tasks: state.tasks
+  };
+
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup_team_tasks_${getTodayString()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('ส่งออกไฟล์สำรอง (JSON) สำเร็จแล้ว', 'success');
+}
+
+function handleImportJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      if (Array.isArray(data.members) && Array.isArray(data.tasks)) {
+        state.members = data.members;
+        state.tasks = data.tasks;
+        saveMembers();
+        saveTasks();
+        renderApp();
+        showToast('นำเข้าข้อมูลสำรองสำเร็จแล้ว!', 'success');
+        closeExportModal();
+      } else {
+        showToast('รูปแบบไฟล์สำรองไม่ถูกต้อง', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('เกิดข้อผิดพลาดในการอ่านไฟล์', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetToDemo() {
+  if (confirm('คุณต้องการรีเซ็ตข้อมูลทั้งหมดกลับเป็นชุดตัวอย่างเริ่มต้นใช่หรือไม่? (ข้อมูลที่บันทึกไว้จะถูกเขียนทับ)')) {
+    state.members = [...DEFAULT_MEMBERS];
+    state.tasks = [...DEFAULT_TASKS];
+    saveMembers();
+    saveTasks();
+    saveRole('supervisor');
+    renderApp();
+    closeExportModal();
+    showToast('รีเซ็ตข้อมูลเป็นชุดตัวอย่างเรียบร้อยแล้ว', 'success');
+  }
+}
+
+// ==========================================================================
+// Filter Options Helper
+// ==========================================================================
+function renderAssigneeFilterOptions() {
+  const select = document.getElementById('filterAssignee');
+  const currentVal = state.filters.assignee;
+
+  let html = `<option value="all">ทีมงานทั้งหมด (ทุกคน)</option>`;
+  state.members.forEach(m => {
+    html += `<option value="${m.id}" ${currentVal === m.id ? 'selected' : ''}>👤 ${escapeHTML(m.name)}</option>`;
+  });
+
+  select.innerHTML = html;
+}
+
+// ==========================================================================
+// Toast Notification System
+// ==========================================================================
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+  toast.innerHTML = `<span>${icon}</span> <span>${escapeHTML(message)}</span>`;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }, 3200);
+}
+
+// Utility HTML escape
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ==========================================================================
+// Google Sheets Cloud Sync Implementation
+// ==========================================================================
+function initCloudSync() {
+  updateCloudStatusUI();
+  if (state.sheetsUrl) {
+    // Background fetch latest data on startup
+    fetchFromSheets(true);
+  }
+
+  // Periodic polling every 30 seconds if configured
+  setInterval(() => {
+    if (state.sheetsUrl && state.autoSync) {
+      fetchFromSheets(true);
+    }
+  }, 30000);
+
+  // Auto-sync on window focus
+  window.addEventListener('focus', () => {
+    if (state.sheetsUrl && state.autoSync) {
+      fetchFromSheets(true);
+    }
+  });
+}
+
+function updateCloudStatusUI() {
+  const pill = document.getElementById('cloudStatusPill');
+  const text = document.getElementById('cloudStatusText');
+  const label = document.getElementById('sheetsStatusLabel');
+  const badge = document.getElementById('sheetsStatusBadge');
+  const details = document.getElementById('sheetsStatusDetails');
+  const input = document.getElementById('sheetsUrlInput');
+  const chkAutoSync = document.getElementById('chkAutoSync');
+
+  if (input && document.activeElement !== input) {
+    input.value = state.sheetsUrl || '';
+  }
+  if (chkAutoSync) {
+    chkAutoSync.checked = state.autoSync;
+  }
+
+  if (pill) {
+    pill.className = `cloud-status-pill ${state.syncStatus}`;
+  }
+
+  if (state.syncStatus === 'connected') {
+    if (text) text.innerHTML = `🟢 Google Sheets`;
+    if (label) {
+      label.style.color = '#059669';
+      label.textContent = '🟢 เชื่อมต่อกับ Google Sheets เรียบร้อยแล้ว';
+    }
+    if (badge) badge.style.background = '#10b981';
+    if (details) {
+      const timeStr = state.lastSyncTime ? new Date(state.lastSyncTime).toLocaleTimeString('th-TH') : 'ล่าสุด';
+      details.textContent = `ข้อมูลซิงค์กับ Google Sheets อัตโนมัติ (อัปเดตล่าสุด: ${timeStr})`;
+    }
+  } else if (state.syncStatus === 'syncing') {
+    if (text) text.innerHTML = `🔄 กำลังซิงค์...`;
+    if (label) {
+      label.style.color = '#2563eb';
+      label.textContent = '🔄 กำลังซิงค์ข้อมูลกับ Google Sheets...';
+    }
+    if (badge) badge.style.background = '#3b82f6';
+  } else if (state.syncStatus === 'error') {
+    if (text) text.innerHTML = `⚠️ เชื่อมต่อไม่สำเร็จ`;
+    if (label) {
+      label.style.color = '#dc2626';
+      label.textContent = '⚠️ ไม่สามารถเชื่อมต่อกับ Google Sheets ได้';
+    }
+    if (badge) badge.style.background = '#ef4444';
+  } else {
+    if (text) text.innerHTML = `☁️ Google Sheets`;
+    if (label) {
+      label.style.color = '#475569';
+      label.textContent = '☁️ ยังไม่ได้เชื่อมต่อ (ทำงานแบบบันทึกเฉพาะในเครื่องนี้)';
+    }
+    if (badge) badge.style.background = '#94a3b8';
+    if (details) {
+      details.textContent = 'เมื่อเชื่อมต่อแล้ว ข้อมูลงานจะถูกเก็บลง Google Sheets บน Google Drive และแชร์ให้ทุกคนในทีมใช้งานร่วมกันได้ทันที';
+    }
+  }
+}
+
+async function callSheetsAPI(payload) {
+  if (!state.sheetsUrl) return null;
+
+  try {
+    // If running embedded inside Google Apps Script:
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      return new Promise((resolve, reject) => {
+        if (payload.action === 'getAll') {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .getAllData();
+        } else if (payload.action === 'saveTask') {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .saveTaskToSheet(payload.task);
+        } else if (payload.action === 'deleteTask') {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .deleteRowById('Tasks', payload.id);
+        } else if (payload.action === 'saveMember') {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .saveMemberToSheet(payload.member);
+        } else if (payload.action === 'deleteMember') {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .deleteRowById('Members', payload.id);
+        } else if (payload.action === 'syncAll') {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .syncAllToSheets(payload);
+        } else {
+          resolve({ ok: true });
+        }
+      });
+    }
+
+    // Standard HTTP fetch to Google Apps Script Web App
+    const response = await fetch(state.sheetsUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error('Call Sheets API Error:', err);
+    throw err;
+  }
+}
+
+async function fetchFromSheets(silent = false) {
+  if (!state.sheetsUrl) return;
+
+  const syncIcon = document.getElementById('syncIcon');
+  if (syncIcon) syncIcon.classList.add('spinning');
+  state.syncStatus = 'syncing';
+  updateCloudStatusUI();
+
+  try {
+    let result = null;
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      result = await new Promise((res, rej) => {
+        google.script.run.withSuccessHandler(res).withFailureHandler(rej).getAllData();
+      });
+    } else {
+      const fetchUrl = state.sheetsUrl + (state.sheetsUrl.includes('?') ? '&' : '?') + 'action=getAll';
+      const res = await fetch(fetchUrl);
+      result = await res.json();
+    }
+
+    if (result && result.ok) {
+      if (Array.isArray(result.members) && result.members.length > 0) {
+        state.members = result.members;
+        saveMembers();
+      }
+      if (Array.isArray(result.tasks)) {
+        state.tasks = result.tasks;
+        saveTasks();
+      }
+
+      state.syncStatus = 'connected';
+      state.lastSyncTime = new Date().toISOString();
+      updateCloudStatusUI();
+      renderApp();
+
+      if (!silent) {
+        showToast('ดึงข้อมูลล่าสุดจาก Google Sheets สำเร็จ!', 'success');
+      }
+    } else {
+      throw new Error(result?.error || 'ข้อมูลไม่สมบูรณ์');
+    }
+  } catch (err) {
+    console.warn('Fetch from sheets error:', err);
+    state.syncStatus = 'error';
+    updateCloudStatusUI();
+    if (!silent) {
+      showToast('ไม่สามารถเชื่อมต่อ Google Sheets ได้ ตรวจสอบ URL อีกครั้ง', 'error');
+    }
+  } finally {
+    if (syncIcon) syncIcon.classList.remove('spinning');
+  }
+}
+
+async function pushToSheets() {
+  if (!state.sheetsUrl) {
+    showToast('กรุณาระบุ Web App URL ของ Google Sheets ก่อน', 'warning');
+    return;
+  }
+
+  const syncIcon = document.getElementById('syncIcon');
+  if (syncIcon) syncIcon.classList.add('spinning');
+  state.syncStatus = 'syncing';
+  updateCloudStatusUI();
+
+  try {
+    const payload = {
+      action: 'syncAll',
+      tasks: state.tasks,
+      members: state.members
+    };
+
+    const res = await callSheetsAPI(payload);
+    if (res && res.ok) {
+      state.syncStatus = 'connected';
+      state.lastSyncTime = new Date().toISOString();
+      updateCloudStatusUI();
+      showToast('อัปโหลดข้อมูลทั้งหมดขึ้น Google Sheets สำเร็จแล้ว!', 'success');
+    } else {
+      throw new Error(res?.error || 'เกิดข้อผิดพลาดในการบันทึก');
+    }
+  } catch (err) {
+    console.error(err);
+    state.syncStatus = 'error';
+    updateCloudStatusUI();
+    showToast('บันทึกขึ้น Google Sheets ล้มเหลว ตรวจสอบสิทธิ์การเข้าถึง', 'error');
+  } finally {
+    if (syncIcon) syncIcon.classList.remove('spinning');
+  }
+}
+
+function autoSyncTask(task) {
+  if (!state.sheetsUrl || !state.autoSync) return;
+  callSheetsAPI({ action: 'saveTask', task }).then(() => {
+    state.syncStatus = 'connected';
+    state.lastSyncTime = new Date().toISOString();
+    updateCloudStatusUI();
+  }).catch(err => {
+    console.warn('AutoSync task failed:', err);
+  });
+}
+
+function autoSyncDeleteTask(taskId) {
+  if (!state.sheetsUrl || !state.autoSync) return;
+  callSheetsAPI({ action: 'deleteTask', id: taskId }).catch(err => {
+    console.warn('AutoSync delete task failed:', err);
+  });
+}
+
+function autoSyncMember(member) {
+  if (!state.sheetsUrl || !state.autoSync) return;
+  callSheetsAPI({ action: 'saveMember', member }).catch(err => {
+    console.warn('AutoSync member failed:', err);
+  });
+}
+
+function autoSyncDeleteMember(memberId) {
+  if (!state.sheetsUrl || !state.autoSync) return;
+  callSheetsAPI({ action: 'deleteMember', id: memberId }).catch(err => {
+    console.warn('AutoSync delete member failed:', err);
+  });
+}
+
+async function testAndSaveSheetsUrl() {
+  const input = document.getElementById('sheetsUrlInput');
+  const url = input.value.trim();
+
+  if (!url) {
+    state.sheetsUrl = '';
+    state.syncStatus = 'offline';
+    localStorage.removeItem(STORAGE_KEY_SHEETS_URL);
+    updateCloudStatusUI();
+    showToast('ปิดการเชื่อมต่อ Google Sheets แล้ว (กลับสู่โหมดบันทึกในเครื่อง)', 'info');
+    return;
+  }
+
+  if (!url.startsWith('https://script.google.com/macros/s/')) {
+    showToast('URL ไม่ถูกต้อง ต้องขึ้นต้นด้วย https://script.google.com/macros/s/...', 'warning');
+    return;
+  }
+
+  showToast('กำลังทดสอบการเชื่อมต่อไปยัง Google Sheets...', 'info');
+
+  try {
+    const testUrl = url + (url.includes('?') ? '&' : '?') + 'action=ping';
+    const res = await fetch(testUrl);
+    const data = await res.json();
+
+    if (data && data.ok) {
+      state.sheetsUrl = url;
+      state.syncStatus = 'connected';
+      state.lastSyncTime = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY_SHEETS_URL, url);
+      updateCloudStatusUI();
+      showToast(`เชื่อมต่อสำเร็จกับ: "${data.spreadsheet || 'Google Sheets'}"`, 'success');
+      fetchFromSheets(true);
+    } else {
+      throw new Error('ไม่ได้รับการตอบกลับที่ถูกต้อง');
+    }
+  } catch (err) {
+    console.error('Test connection error:', err);
+    if (confirm('ไม่สามารถทดสอบ ping อัตโนมัติได้ (อาจเกิดจากข้อจำกัด CORS ของเบราว์เซอร์) ต้องการบันทึก URL นี้ไว้หรือไม่?')) {
+      state.sheetsUrl = url;
+      state.syncStatus = 'connected';
+      localStorage.setItem(STORAGE_KEY_SHEETS_URL, url);
+      updateCloudStatusUI();
+      showToast('บันทึก URL เรียบร้อยแล้ว', 'success');
+    }
+  }
+}
+
+// ==========================================================================
+// Event Listeners Binding
+// ==========================================================================
+function bindEvents() {
+  // Brand Click -> Return to Supervisor
+  document.getElementById('btnGoHome').addEventListener('click', () => {
+    saveRole('supervisor');
+    renderApp();
+  });
+
+  // Profile Switcher Menu Toggle
+  const profilePill = document.getElementById('profilePill');
+  const profileMenu = document.getElementById('profileMenu');
+
+  profilePill.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileMenu.classList.toggle('show');
+  });
+
+  document.addEventListener('click', () => {
+    profileMenu.classList.remove('show');
+  });
+
+  // Profile Menu Selection
+  profileMenu.addEventListener('click', (e) => {
+    const item = e.target.closest('.menu-item');
+    if (!item) return;
+
+    const role = item.getAttribute('data-role');
+    if (role) {
+      saveRole(role);
+      renderApp();
+      profileMenu.classList.remove('show');
+      const name = role === 'supervisor' ? 'หัวหน้างาน' : getMemberById(role).name;
+      showToast(`สลับไปยังมุมมอง: ${name}`, 'success');
+    }
+  });
+
+  // Search Input with Debounce
+  let searchTimeout = null;
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      state.filters.search = e.target.value.trim();
+      updateFilterResetBtn();
+      renderApp();
+    }, 200);
+  });
+
+  // Filter Selects
+  document.getElementById('filterAssignee').addEventListener('change', (e) => {
+    state.filters.assignee = e.target.value;
+    updateFilterResetBtn();
+    renderApp();
+  });
+
+  document.getElementById('filterPriority').addEventListener('change', (e) => {
+    state.filters.priority = e.target.value;
+    updateFilterResetBtn();
+    renderApp();
+  });
+
+  document.getElementById('filterDeadline').addEventListener('change', (e) => {
+    state.filters.deadline = e.target.value;
+    updateFilterResetBtn();
+    renderApp();
+  });
+
+  document.getElementById('btnResetFilters').addEventListener('click', () => {
+    state.filters.search = '';
+    state.filters.assignee = 'all';
+    state.filters.priority = 'all';
+    state.filters.deadline = 'all';
+
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filterAssignee').value = 'all';
+    document.getElementById('filterPriority').value = 'all';
+    document.getElementById('filterDeadline').value = 'all';
+
+    updateFilterResetBtn();
+    renderApp();
+  });
+
+  function updateFilterResetBtn() {
+    const hasFilter = state.filters.search || state.filters.assignee !== 'all' || state.filters.priority !== 'all' || state.filters.deadline !== 'all';
+    document.getElementById('btnResetFilters').style.display = hasFilter ? 'inline-block' : 'none';
+  }
+
+  // View Switcher Tabs (Kanban vs Table)
+  document.getElementById('tabKanban').addEventListener('click', () => {
+    state.activeView = 'kanban';
+    document.getElementById('tabKanban').classList.add('active');
+    document.getElementById('tabTable').classList.remove('active');
+    renderApp();
+  });
+
+  document.getElementById('tabTable').addEventListener('click', () => {
+    state.activeView = 'table';
+    document.getElementById('tabTable').classList.add('active');
+    document.getElementById('tabKanban').classList.remove('active');
+    renderApp();
+  });
+
+  // Task Creation Buttons
+  document.getElementById('btnNewTask').addEventListener('click', () => openTaskFormModal());
+  document.getElementById('btnQuickAddTask').addEventListener('click', () => openTaskFormModal());
+
+  // Task Form Modal Events
+  document.getElementById('btnCloseTaskModal').addEventListener('click', closeTaskFormModal);
+  document.getElementById('btnCancelTaskForm').addEventListener('click', closeTaskFormModal);
+  document.getElementById('taskForm').addEventListener('submit', handleSaveTaskForm);
+
+  // Task Detail Modal Events
+  document.getElementById('btnCloseDetailModal').addEventListener('click', closeTaskDetailModal);
+
+  // Blocked Prompt Modal Events
+  document.getElementById('btnCloseBlockedPrompt').addEventListener('click', closeBlockedPromptModal);
+  document.getElementById('btnCancelBlockedPrompt').addEventListener('click', closeBlockedPromptModal);
+  document.getElementById('btnConfirmBlockedPrompt').addEventListener('click', confirmBlockedPrompt);
+
+  // Team Modal Events
+  document.getElementById('btnManageTeam').addEventListener('click', openTeamModal);
+  document.getElementById('btnCloseTeamModal').addEventListener('click', closeTeamModal);
+  document.getElementById('btnCloseTeamModalBtn').addEventListener('click', closeTeamModal);
+  document.getElementById('addMemberForm').addEventListener('submit', handleAddMember);
+
+  // Export / Backup Modal Events
+  document.getElementById('btnExportImport').addEventListener('click', openExportModal);
+  document.getElementById('btnCloseExportModal').addEventListener('click', closeExportModal);
+  document.getElementById('btnCloseExportModalBtn').addEventListener('click', closeExportModal);
+  document.getElementById('btnExportCSV').addEventListener('click', exportToCSV);
+  document.getElementById('btnExportJSON').addEventListener('click', exportToJSON);
+  document.getElementById('importFileInput').addEventListener('change', handleImportJSON);
+  document.getElementById('btnResetDemo').addEventListener('click', resetToDemo);
+
+  // Google Sheets Cloud Integration Events
+  const cloudPill = document.getElementById('cloudStatusPill');
+  const sheetsModal = document.getElementById('sheetsModal');
+  if (cloudPill && sheetsModal) {
+    cloudPill.addEventListener('click', () => {
+      document.getElementById('sheetsUrlInput').value = state.sheetsUrl || '';
+      updateCloudStatusUI();
+      sheetsModal.classList.add('active');
+    });
+    document.getElementById('btnCloseSheetsModal').addEventListener('click', () => sheetsModal.classList.remove('active'));
+    document.getElementById('btnCloseSheetsModalBtn').addEventListener('click', () => sheetsModal.classList.remove('active'));
+  }
+
+  const btnQuickSync = document.getElementById('btnQuickSync');
+  if (btnQuickSync) {
+    btnQuickSync.addEventListener('click', () => {
+      if (!state.sheetsUrl) {
+        sheetsModal.classList.add('active');
+        showToast('กรุณาตั้งค่าเชื่อมต่อ Google Sheets ก่อนใช้งานการซิงค์', 'info');
+      } else {
+        fetchFromSheets(false);
+      }
+    });
+  }
+
+  const btnTestAndSave = document.getElementById('btnTestAndSaveSheets');
+  if (btnTestAndSave) {
+    btnTestAndSave.addEventListener('click', testAndSaveSheetsUrl);
+  }
+
+  const btnPull = document.getElementById('btnPullFromSheets');
+  if (btnPull) {
+    btnPull.addEventListener('click', () => fetchFromSheets(false));
+  }
+
+  const btnPush = document.getElementById('btnPushToSheets');
+  if (btnPush) {
+    btnPush.addEventListener('click', pushToSheets);
+  }
+
+  const chkAutoSync = document.getElementById('chkAutoSync');
+  if (chkAutoSync) {
+    chkAutoSync.addEventListener('change', (e) => {
+      state.autoSync = e.target.checked;
+      localStorage.setItem(STORAGE_KEY_AUTO_SYNC, state.autoSync);
+      showToast(state.autoSync ? 'เปิดระบบซิงค์อัตโนมัติแล้ว' : 'ปิดระบบซิงค์อัตโนมัติแล้ว', 'info');
+    });
+  }
+
+  // Close modals on clicking overlay background
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('active');
+      }
+    });
+  });
+
+  // Attach drag & drop events to columns
+  attachKanbanColumnDropEvents();
+}
+
+// Expose helper functions globally for inline HTML event handlers
+window.openTaskDetailModal = openTaskDetailModal;
+window.openTaskFormModal = openTaskFormModal;
+window.deleteMember = deleteMember;
+
+// Start app on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initApp);
+
+</script>
+</body>
+</html>
