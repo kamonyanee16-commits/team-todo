@@ -8,7 +8,7 @@
 // ==========================================================================
 // (ตัวเลือกแนะนำ) นำ Web App URL ของ Google Sheets มาวางที่นี่
 // เพื่อให้ทุกคนที่เปิดเว็บผ่านลิงก์ (เช่น GitHub Pages) เชื่อมต่อชีตอัตโนมัติทันทีโดยไม่ต้องตั้งค่าเอง
-const DEFAULT_SHEETS_URL = '';
+const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw58RWUr6VAyIkN1KivffYijjDM-XcaZa7X998UN4ku5RK6K65yIRqkMgP8ZT460KRjnA/exec';
 
 const STORAGE_KEY_TASKS = 'team_tasks_data_v1';
 const STORAGE_KEY_MEMBERS = 'team_members_data_v1';
