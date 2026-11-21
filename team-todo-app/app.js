@@ -8,7 +8,7 @@
 // ==========================================================================
 // (ตัวเลือกแนะนำ) นำ Web App URL ของ Google Sheets มาวางที่นี่
 // เพื่อให้ทุกคนที่เปิดเว็บผ่านลิงก์ (เช่น GitHub Pages) เชื่อมต่อชีตอัตโนมัติทันทีโดยไม่ต้องตั้งค่าเอง
-const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw58RWUr6VAyIkN1KivffYijjDM-XcaZa7X998UN4ku5RK6K65yIRqkMgP8ZT460KRjnA/exec';
+const DEFAULT_SHEETS_URL = '';
 
 const STORAGE_KEY_TASKS = 'team_tasks_data_v1';
 const STORAGE_KEY_MEMBERS = 'team_members_data_v1';
@@ -247,8 +247,8 @@ function compressImageFile(file, maxDimension = 640, quality = 0.6) {
         let height = img.height;
 
         function getCompressedData(curMaxDim, curQuality) {
-          let w = width;
-          let h = height;
+          let w = width || 100;
+          let h = height || 100;
           if (w > curMaxDim || h > curMaxDim) {
             if (w > h) {
               h = Math.round((height * curMaxDim) / width);
@@ -258,12 +258,18 @@ function compressImageFile(file, maxDimension = 640, quality = 0.6) {
               h = curMaxDim;
             }
           }
+          w = Math.max(1, Math.round(w));
+          h = Math.max(1, Math.round(h));
           const canvas = document.createElement('canvas');
           canvas.width = w;
           canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          return canvas.toDataURL('image/jpeg', curQuality);
+          let res = canvas.toDataURL('image/jpeg', curQuality);
+          if (!res || res === 'data:,') {
+            res = canvas.toDataURL('image/png');
+          }
+          return res || e.target.result;
         }
 
         let curDim = maxDimension;
@@ -334,14 +340,23 @@ async function handleFilesSelected(files) {
 
   showToast(`กำลังแนบไฟล์ ${fileArray.length} ไฟล์...`, 'info');
 
+  let addedCount = 0;
   for (const file of fileArray) {
     try {
-      if (file.type.startsWith('image/')) {
+      const isImg = (file.type && file.type.startsWith('image/')) || 
+                    /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(file.name);
+      if (isImg) {
         const compressed = await compressImageFile(file);
-        if (compressed) currentFormAttachments.push(compressed);
+        if (compressed) {
+          currentFormAttachments.push(compressed);
+          addedCount++;
+        }
       } else {
         const doc = await readDocumentFile(file);
-        if (doc) currentFormAttachments.push(doc);
+        if (doc) {
+          currentFormAttachments.push(doc);
+          addedCount++;
+        }
       }
     } catch (err) {
       console.error('File process error:', err);
@@ -349,6 +364,9 @@ async function handleFilesSelected(files) {
   }
 
   renderFormAttachmentPreviews();
+  if (addedCount > 0) {
+    showToast(`แนบสำเร็จแล้ว ${addedCount} ไฟล์ (คลิก "บันทึกข้อมูลงาน" เพื่อยืนยัน)`, 'success');
+  }
 }
 
 function formatFileSize(bytes) {
@@ -891,7 +909,7 @@ function renderKanbanBoard() {
       const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
       const canManage = state.loggedUser === 'supervisor' || task.assigneeId === state.loggedUser;
 
-      // Attachment cover image & count badge
+      // Attachment cover image / file banner & count badge
       let coverImgHtml = '';
       let attBadgeHtml = '';
       const attachments = getTaskAttachments(task);
@@ -901,6 +919,19 @@ function renderKanbanBoard() {
           const src = img.url || img.data;
           if (src) {
             coverImgHtml = `<img src="${src}" class="card-cover-image" alt="cover" onclick="event.stopPropagation(); openLightbox(this.src)" title="คลิกดูภาพขยาย">`;
+          }
+        } else {
+          // If no image, but has document files (Excel, PDF, Word)
+          const firstDoc = attachments[0];
+          if (firstDoc) {
+            const ext = (firstDoc.name || '').split('.').pop().toUpperCase();
+            const docIcon = (ext === 'XLSX' || ext === 'XLS') ? '📊' : ext === 'PDF' ? '📕' : (ext === 'DOC' || ext === 'DOCX') ? '📘' : '📄';
+            coverImgHtml = `
+              <div class="card-file-preview-banner" title="ไฟล์แนบ: ${escapeHTML(firstDoc.name)}">
+                <span>${docIcon}</span>
+                <span class="file-name">${escapeHTML(firstDoc.name)}</span>
+              </div>
+            `;
           }
         }
         attBadgeHtml = `<span class="card-attachment-badge" title="มีไฟล์แนบ ${attachments.length} รายการ">📎 ${attachments.length}</span>`;
@@ -2311,30 +2342,49 @@ function bindEvents() {
   const fileDropzone = document.getElementById('fileUploadDropzone');
   const fileInput = document.getElementById('taskFileInput');
   const btnBrowseFiles = document.getElementById('btnBrowseFiles');
+
   if (btnBrowseFiles && fileInput) {
     btnBrowseFiles.addEventListener('click', (e) => {
       e.stopPropagation();
+      e.preventDefault();
       fileInput.click();
     });
   }
+
   if (fileDropzone && fileInput) {
-    fileDropzone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => {
-      handleFilesSelected(e.target.files);
-      fileInput.value = '';
+    fileDropzone.addEventListener('click', (e) => {
+      // Don't trigger if clicked on child button (already handled)
+      if (e.target !== btnBrowseFiles && !btnBrowseFiles?.contains(e.target)) {
+        fileInput.click();
+      }
     });
+
+    fileInput.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length > 0) {
+        await handleFilesSelected(files);
+      }
+      // Reset input ONLY after async processing completes so files aren't invalidated
+      try {
+        fileInput.value = '';
+      } catch (_) {}
+    });
+
     fileDropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       fileDropzone.classList.add('drag-over');
     });
+
     fileDropzone.addEventListener('dragleave', () => {
       fileDropzone.classList.remove('drag-over');
     });
-    fileDropzone.addEventListener('drop', (e) => {
+
+    fileDropzone.addEventListener('drop', async (e) => {
       e.preventDefault();
       fileDropzone.classList.remove('drag-over');
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        handleFilesSelected(e.dataTransfer.files);
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const files = Array.from(e.dataTransfer.files);
+        await handleFilesSelected(files);
       }
     });
   }

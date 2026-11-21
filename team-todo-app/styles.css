@@ -1559,6 +1559,27 @@ body {
   cursor: pointer;
 }
 
+.card-file-preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.76rem;
+  color: var(--text-main);
+  margin-bottom: 0.45rem;
+  overflow: hidden;
+}
+
+.card-file-preview-banner .file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
 .card-attachment-badge {
   display: inline-flex;
   align-items: center;
