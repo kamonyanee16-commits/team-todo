@@ -1213,12 +1213,21 @@ body {
   animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.modal-content > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .modal-header {
   padding: 1.15rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -1248,11 +1257,28 @@ body {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Custom Scrollbar for Modal Body so user can easily see scroll position */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .modal-footer {
@@ -1263,6 +1289,7 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 /* Form Controls inside Modals */
@@ -1418,9 +1445,9 @@ body {
    File & Image Attachment Styles
    ========================================================================== */
 .file-dropzone {
-  border: 2px dashed var(--border-color);
+  border: 2px dashed #94a3b8;
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   text-align: center;
   background: #f8fafc;
   cursor: pointer;
@@ -1429,10 +1456,10 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
-.file-dropzone:hover, .file-dropzone.drag-active {
+.file-dropzone:hover, .file-dropzone.drag-over, .file-dropzone.drag-active {
   border-color: var(--primary);
   background: #eef2ff;
 }
@@ -2176,8 +2203,8 @@ body {
               <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
               </svg>
-              <span class="file-dropzone-text">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</span>
-              <span class="file-dropzone-hint">รองรับรูปภาพ (JPG, PNG), เอกสาร (PDF, Word, Excel) ขนาดไฟล์ไม่เกิน 5MB</span>
+              <span class="file-dropzone-text"><strong>คลิกที่นี่เพื่อเลือกรูปภาพหรือไฟล์</strong> หรือลากไฟล์มาวาง</span>
+              <span class="file-dropzone-hint">รองรับรูปถ่ายหน้างาน (JPG, PNG), เอกสาร (PDF, Word, Excel) ขนาดไม่เกิน 5MB</span>
               <input type="file" id="taskFileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display: none;">
             </div>
             <div id="taskAttachmentPreviews" class="attachment-preview-grid"></div>
