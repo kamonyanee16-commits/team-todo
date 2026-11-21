@@ -1213,12 +1213,21 @@ body {
   animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.modal-content > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .modal-header {
   padding: 1.15rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -1248,11 +1257,28 @@ body {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Custom Scrollbar for Modal Body so user can easily see scroll position */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .modal-footer {
@@ -1263,6 +1289,7 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 /* Form Controls inside Modals */
@@ -1412,6 +1439,252 @@ body {
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(30px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+/* ==========================================================================
+   File & Image Attachment Styles
+   ========================================================================== */
+.file-dropzone {
+  border: 2px dashed #94a3b8;
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.file-dropzone:hover, .file-dropzone.drag-over, .file-dropzone.drag-active {
+  border-color: var(--primary);
+  background: #eef2ff;
+}
+
+.file-dropzone-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--primary);
+}
+
+.file-dropzone-text {
+  font-size: 0.82rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.file-dropzone-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.attachment-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.attachment-chip {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: white;
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.attachment-thumb {
+  width: 100%;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.attachment-doc-icon {
+  width: 100%;
+  height: 70px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #64748b;
+}
+
+.attachment-name {
+  font-size: 0.72rem;
+  color: var(--text-main);
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.attachment-size {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.btn-remove-attachment {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: rgba(15, 23, 42, 0.75);
+  color: white;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+  line-height: 1;
+}
+
+.btn-remove-attachment:hover {
+  background: #dc2626;
+}
+
+/* Card Cover Image & Attachment Badges */
+.card-cover-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.4rem;
+  cursor: pointer;
+}
+
+.card-attachment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Detail Modal Attachment Gallery */
+.detail-attachments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.detail-image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.5rem;
+}
+
+.detail-image-item {
+  width: 100%;
+  height: 85px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.detail-image-item:hover {
+  transform: scale(1.03);
+  box-shadow: var(--shadow-md);
+}
+
+.detail-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.detail-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+}
+
+.detail-file-item:hover {
+  background: #f1f5f9;
+}
+
+/* Read-Only Friend Board Banner */
+.readonly-notice-banner {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Image Lightbox Modal */
+.lightbox-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(5px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1.5rem;
+}
+
+.lightbox-modal.active {
+  display: flex;
+}
+
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  color: white;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 /* ==========================================================================
@@ -1594,6 +1867,20 @@ body {
         </button>
       </div>
     </section>
+
+    <!-- Readonly Friend Board Notice Banner -->
+    <div id="readonlyNoticeBanner" class="readonly-notice-banner" style="display: none;">
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span style="font-size: 1.3rem;">👁️</span>
+        <div>
+          <strong>โหมดดูงานเพื่อนร่วมทีม (อ่านอย่างเดียว)</strong>:
+          <span id="readonlyNoticeText">คุณกำลังดูบอร์ดของเพื่อนร่วมทีม สามารถดูรายละเอียดงานได้ แต่อ่านได้อย่างเดียว ไม่สามารถเพิ่มหรือแก้ไขงานแทนได้</span>
+        </div>
+      </div>
+      <button id="btnReturnToMyBoard" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+        ↩️ กลับไปที่บอร์ดของฉัน
+      </button>
+    </div>
 
     <!-- KPI Summary Grid -->
     <section class="kpi-grid">
@@ -1864,6 +2151,9 @@ body {
               <select id="taskFormAssignee" class="form-select" required>
                 <!-- Populated dynamically -->
               </select>
+              <div id="lockedAssigneeNotice" style="display:none; font-size:0.78rem; color:#4338ca; background:#e0e7ff; padding:0.35rem 0.6rem; border-radius:6px; margin-top:0.3rem;">
+                🔒 บันทึกงานเป็นของ <strong id="lockedAssigneeName"></strong> โดยเฉพาะ
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">ระดับความสำคัญ</label>
@@ -1901,6 +2191,23 @@ body {
           <div class="form-group" id="groupBlockedReason" style="display: none;">
             <label class="form-label" style="color: #dc2626;">ระบุสาเหตุที่ติดปัญหา <span class="required">*</span></label>
             <textarea id="taskFormBlockedReason" class="form-textarea" placeholder="เช่น รออะไหล่จากผู้ผลิต, ติดปัญหาหน้างานยังไม่พร้อม..."></textarea>
+          </div>
+
+          <!-- File & Photo Attachments -->
+          <div class="form-group" style="border-top: 1px dashed var(--border-color); padding-top: 0.85rem; margin-top: 0.5rem;">
+            <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
+              <span>📎 รูปภาพและไฟล์แนบ (รูปหน้างาน, PDF, เอกสาร)</span>
+              <span id="lblAttachmentCount" style="font-size: 0.72rem; color: var(--text-muted);">ยังไม่มีไฟล์แนบ</span>
+            </label>
+            <div id="fileUploadDropzone" class="file-dropzone">
+              <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+              <span class="file-dropzone-text"><strong>คลิกที่นี่เพื่อเลือกรูปภาพหรือไฟล์</strong> หรือลากไฟล์มาวาง</span>
+              <span class="file-dropzone-hint">รองรับรูปถ่ายหน้างาน (JPG, PNG), เอกสาร (PDF, Word, Excel) ขนาดไม่เกิน 5MB</span>
+              <input type="file" id="taskFileInput" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" style="display: none;">
+            </div>
+            <div id="taskAttachmentPreviews" class="attachment-preview-grid"></div>
           </div>
         </div>
 
@@ -1960,6 +2267,12 @@ body {
             <div id="detailPriority" class="detail-value"></div>
           </div>
         </div>
+
+        <!-- Attachments in Detail View -->
+        <div class="form-group" id="detailAttachmentsGroup" style="display: none; border-top: 1px dashed var(--border-color); padding-top: 0.85rem; margin-top: 0.85rem;">
+          <label class="detail-label" style="font-weight: 700; margin-bottom: 0.4rem; display: block;">📎 รูปภาพและไฟล์แนบ</label>
+          <div id="detailAttachmentsContainer" class="detail-attachments-section"></div>
+        </div>
       </div>
       <div class="modal-footer" style="justify-content: space-between;">
         <button type="button" class="btn btn-secondary" id="btnDeleteTask" style="color: #dc2626; border-color: #fecaca;">
@@ -1969,7 +2282,7 @@ body {
           </svg>
           <span>ลบงานนี้</span>
         </button>
-        <div style="display: flex; gap: 0.6rem;">
+        <div id="detailActionsRight" style="display: flex; gap: 0.6rem; align-items: center;">
           <button type="button" class="btn btn-secondary" id="btnEditTaskFromDetail">แก้ไขข้อมูล</button>
           <button type="button" class="btn btn-primary" id="btnChangeStatusQuick">เปลี่ยนสถานะ</button>
         </div>
@@ -2224,6 +2537,12 @@ body {
     </div>
   </div>
 
+  <!-- 7. Image Lightbox Modal -->
+  <div id="imageLightboxModal" class="lightbox-modal">
+    <button class="lightbox-close" id="btnCloseLightbox">&times;</button>
+    <img id="lightboxImg" class="lightbox-img" src="" alt="Full preview">
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
@@ -2243,7 +2562,8 @@ const DEFAULT_SHEETS_URL = '';
 
 const STORAGE_KEY_TASKS = 'team_tasks_data_v1';
 const STORAGE_KEY_MEMBERS = 'team_members_data_v1';
-const STORAGE_KEY_ROLE = 'team_current_role_v1';
+const STORAGE_KEY_LOGGED_USER = 'team_logged_user_v2';
+const STORAGE_KEY_VIEWING_BOARD = 'team_viewing_board_v2';
 const STORAGE_KEY_SHEETS_URL = 'team_sheets_api_url_v1';
 const STORAGE_KEY_AUTO_SYNC = 'team_auto_sync_enabled_v1';
 
@@ -2342,7 +2662,8 @@ const DEFAULT_TASKS = [
 // Application State
 // ==========================================================================
 const state = {
-  currentRole: 'supervisor', // 'supervisor' or member id (e.g. 'mem1')
+  loggedUser: 'supervisor', // ตัวตนของผู้ใช้งาน: 'supervisor' หรือ memberId ('mem1', 'mem2'...)
+  viewingBoard: 'supervisor', // บอร์ดที่กำลังเปิดดู: 'supervisor' หรือ memberId
   members: [],
   tasks: [],
   activeView: 'kanban', // 'kanban' or 'table'
@@ -2360,6 +2681,9 @@ const state = {
   syncStatus: 'offline', // 'offline' | 'connected' | 'syncing' | 'error'
   lastSyncTime: null
 };
+
+// Variable holding attachments currently in task form
+let currentFormAttachments = [];
 
 // ==========================================================================
 // Initialization & Storage
@@ -2379,15 +2703,34 @@ function loadStoredData() {
     const storedTasks = localStorage.getItem(STORAGE_KEY_TASKS);
     state.tasks = storedTasks ? JSON.parse(storedTasks) : [...DEFAULT_TASKS];
 
-    const storedRole = localStorage.getItem(STORAGE_KEY_ROLE);
-    if (storedRole) {
-      state.currentRole = storedRole;
+    const storedLogged = localStorage.getItem(STORAGE_KEY_LOGGED_USER);
+    if (storedLogged) {
+      state.loggedUser = storedLogged;
+    } else {
+      const oldRole = localStorage.getItem('team_current_role_v1');
+      if (oldRole) state.loggedUser = oldRole;
     }
 
-    const storedSheetsUrl = localStorage.getItem(STORAGE_KEY_SHEETS_URL) || DEFAULT_SHEETS_URL;
-    if (storedSheetsUrl) {
-      state.sheetsUrl = storedSheetsUrl;
+    const storedViewing = localStorage.getItem(STORAGE_KEY_VIEWING_BOARD);
+    if (storedViewing) {
+      state.viewingBoard = storedViewing;
+    } else {
+      state.viewingBoard = state.loggedUser;
+    }
+
+    // Check if sheetsUrl was passed in URL query param (e.g. ?sheetsUrl=https://script.google.com/...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const querySheetsUrl = urlParams.get('sheetsUrl') || urlParams.get('api');
+    if (querySheetsUrl && querySheetsUrl.startsWith('https://script.google.com/')) {
+      localStorage.setItem(STORAGE_KEY_SHEETS_URL, querySheetsUrl);
+      state.sheetsUrl = querySheetsUrl;
       state.syncStatus = 'connected';
+    } else {
+      const storedSheetsUrl = localStorage.getItem(STORAGE_KEY_SHEETS_URL) || DEFAULT_SHEETS_URL;
+      if (storedSheetsUrl) {
+        state.sheetsUrl = storedSheetsUrl;
+        state.syncStatus = 'connected';
+      }
     }
 
     const storedAutoSync = localStorage.getItem(STORAGE_KEY_AUTO_SYNC);
@@ -2398,9 +2741,193 @@ function loadStoredData() {
     console.error('Error loading stored data:', err);
     state.members = [...DEFAULT_MEMBERS];
     state.tasks = [...DEFAULT_TASKS];
-    state.currentRole = 'supervisor';
+    state.loggedUser = 'supervisor';
+    state.viewingBoard = 'supervisor';
   }
 }
+
+function saveUserIdentity(userId) {
+  state.loggedUser = userId;
+  state.viewingBoard = userId; // When changing identity, default viewing board to own board
+  localStorage.setItem(STORAGE_KEY_LOGGED_USER, userId);
+  localStorage.setItem(STORAGE_KEY_VIEWING_BOARD, userId);
+}
+
+function saveViewingBoard(boardId) {
+  state.viewingBoard = boardId;
+  localStorage.setItem(STORAGE_KEY_VIEWING_BOARD, boardId);
+}
+
+// ==========================================================================
+// File & Photo Attachment Handling
+// ==========================================================================
+function getTaskAttachments(task) {
+  if (!task || !task.attachments) return [];
+  if (Array.isArray(task.attachments)) return task.attachments;
+  if (typeof task.attachments === 'string') {
+    try {
+      let parsed = JSON.parse(task.attachments);
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
+function compressImageFile(file, maxWidth = 1000, quality = 0.75) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve({
+          id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          name: file.name,
+          size: Math.round((dataUrl.length * 3) / 4),
+          type: 'image/jpeg',
+          data: dataUrl
+        });
+      };
+      img.onerror = () => {
+        // Fallback: if canvas fails to render, return raw data URL
+        resolve({
+          id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          name: file.name,
+          size: file.size,
+          type: file.type || 'image/jpeg',
+          data: e.target.result
+        });
+      };
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+function readDocumentFile(file) {
+  return new Promise((resolve) => {
+    if (file.size > 5 * 1024 * 1024) {
+      showToast(`ไฟล์ "${file.name}" มีขนาดเกิน 5MB ไม่สามารถแนบได้`, 'warning');
+      return resolve(null);
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      resolve({
+        id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: file.name,
+        size: file.size,
+        type: file.type || 'application/octet-stream',
+        data: e.target.result
+      });
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFilesSelected(files) {
+  if (!files || files.length === 0) return;
+  const fileArray = Array.from(files);
+
+  showToast(`กำลังแนบไฟล์ ${fileArray.length} ไฟล์...`, 'info');
+
+  for (const file of fileArray) {
+    try {
+      if (file.type.startsWith('image/')) {
+        const compressed = await compressImageFile(file);
+        if (compressed) currentFormAttachments.push(compressed);
+      } else {
+        const doc = await readDocumentFile(file);
+        if (doc) currentFormAttachments.push(doc);
+      }
+    } catch (err) {
+      console.error('File process error:', err);
+    }
+  }
+
+  renderFormAttachmentPreviews();
+}
+
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function renderFormAttachmentPreviews() {
+  const container = document.getElementById('taskAttachmentPreviews');
+  const countLabel = document.getElementById('lblAttachmentCount');
+  if (!container) return;
+
+  if (countLabel) {
+    countLabel.textContent = currentFormAttachments.length > 0 
+      ? `แนบแล้ว ${currentFormAttachments.length} ไฟล์` 
+      : 'ยังไม่มีไฟล์แนบ';
+  }
+
+  if (currentFormAttachments.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  currentFormAttachments.forEach((att, idx) => {
+    const isImg = (att.type && att.type.startsWith('image/')) || (att.url && att.url.match(/\.(jpeg|jpg|gif|png|webp)/i));
+    const src = att.url || att.data;
+
+    html += `
+      <div class="attachment-chip">
+        <button type="button" class="btn-remove-attachment" onclick="removeFormAttachment(${idx})" title="ลบไฟล์นี้">&times;</button>
+        ${isImg ? `
+          <img src="${src}" class="attachment-thumb" alt="${escapeHTML(att.name)}" onclick="openLightbox('${src}')" style="cursor:pointer;">
+        ` : `
+          <div class="attachment-doc-icon">📄</div>
+        `}
+        <div class="attachment-name" title="${escapeHTML(att.name)}">${escapeHTML(att.name)}</div>
+        <div class="attachment-size">${formatFileSize(att.size)}</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function removeFormAttachment(index) {
+  currentFormAttachments.splice(index, 1);
+  renderFormAttachmentPreviews();
+}
+
+function openLightbox(imgSrc) {
+  const modal = document.getElementById('imageLightboxModal');
+  const img = document.getElementById('lightboxImg');
+  if (modal && img) {
+    img.src = imgSrc;
+    modal.classList.add('active');
+  }
+}
+
+function closeLightbox() {
+  const modal = document.getElementById('imageLightboxModal');
+  if (modal) modal.classList.remove('active');
+}
+
 
 function saveTasks() {
   try {
@@ -2540,9 +3067,9 @@ function formatThaiDate(dateStr) {
 // Filtering & Scope Logic
 // ==========================================================================
 function getScopedTasks() {
-  // If Member mode: only show tasks assigned to this specific member
-  if (state.currentRole !== 'supervisor') {
-    return state.tasks.filter(t => t.assigneeId === state.currentRole);
+  // If viewing a specific member's board (either member viewing self/friend, or supervisor viewing member)
+  if (state.viewingBoard !== 'supervisor') {
+    return state.tasks.filter(t => t.assigneeId === state.viewingBoard);
   }
   return state.tasks;
 }
@@ -2562,8 +3089,8 @@ function getFilteredTasks() {
       if (!titleMatch && !descMatch && !memberMatch) return false;
     }
 
-    // Assignee filter (in supervisor view)
-    if (state.currentRole === 'supervisor' && assignee !== 'all') {
+    // Assignee filter (in supervisor master view)
+    if (state.loggedUser === 'supervisor' && state.viewingBoard === 'supervisor' && assignee !== 'all') {
       if (task.assigneeId !== assignee) return false;
     }
 
@@ -2593,7 +3120,8 @@ function renderApp() {
   renderKPIs();
   renderAssigneeFilterOptions();
 
-  if (state.currentRole === 'supervisor') {
+  // Supervisor team workload cards only visible when supervisor is viewing master board
+  if (state.loggedUser === 'supervisor' && state.viewingBoard === 'supervisor') {
     document.getElementById('supervisorSection').style.display = 'block';
     renderWorkloadSection();
   } else {
@@ -2620,28 +3148,28 @@ function renderProfileSwitcher() {
   const currentRoleTag = document.getElementById('currentRoleTag');
   const memberMenuList = document.getElementById('memberMenuList');
 
-  if (state.currentRole === 'supervisor') {
+  if (state.loggedUser === 'supervisor') {
     currentAvatar.className = 'profile-avatar supervisor';
     currentAvatar.style.background = '#1e293b';
     currentAvatar.textContent = 'ผบ';
-    currentName.textContent = 'หัวหน้างาน (Supervisor)';
-    currentRoleTag.textContent = 'เห็นภาพรวมของทุกคน';
+    currentName.textContent = 'หัวหน้าทีม (Supervisor)';
+    currentRoleTag.textContent = state.viewingBoard === 'supervisor' ? 'ภาพรวมทีมงานทั้งหมด' : `กำลังดูบอร์ดของ ${getMemberById(state.viewingBoard).name}`;
   } else {
-    const member = getMemberById(state.currentRole);
+    const member = getMemberById(state.loggedUser);
     currentAvatar.className = 'profile-avatar';
     currentAvatar.style.background = member.avatarColor || '#4f46e5';
     currentAvatar.textContent = getInitials(member.name);
     currentName.textContent = member.name;
-    currentRoleTag.textContent = member.role || 'ทีมงาน';
+    currentRoleTag.textContent = state.viewingBoard === state.loggedUser ? (member.role || 'ทีมงาน') : `ดูบอร์ดของ ${getMemberById(state.viewingBoard).name}`;
   }
 
   // Populate Member Switcher List
   let html = '';
   state.members.forEach(m => {
-    const isActive = state.currentRole === m.id ? 'active' : '';
+    const isActive = state.loggedUser === m.id ? 'active' : '';
     const taskCount = state.tasks.filter(t => t.assigneeId === m.id && t.status !== 'done').length;
     html += `
-      <div class="menu-item ${isActive}" data-role="${m.id}">
+      <div class="menu-item ${isActive}" data-user-id="${m.id}">
         <div class="avatar-circle" style="background: ${m.avatarColor || '#4f46e5'};">
           ${getInitials(m.name)}
         </div>
@@ -2663,25 +3191,69 @@ function renderRoleBanner() {
   const title = document.getElementById('bannerTitle');
   const desc = document.getElementById('bannerDesc');
   const lblBtnQuickAdd = document.getElementById('lblBtnQuickAdd');
+  const btnQuickAddTask = document.getElementById('btnQuickAddTask');
   const filterAssignee = document.getElementById('filterAssignee');
+  const readonlyBanner = document.getElementById('readonlyNoticeBanner');
+  const readonlyText = document.getElementById('readonlyNoticeText');
 
-  if (state.currentRole === 'supervisor') {
-    badge.className = 'role-banner-badge supervisor';
-    badge.innerHTML = '👔';
-    title.textContent = 'หน้าหัวหน้างาน - ภาพรวมของทีมงานทั้งหมด';
-    desc.textContent = 'ติดตามสถานะงาน มอบหมายงาน และตรวจสอบความคืบหน้าของลูกทีมทุกคนแบบเรียลไทม์';
-    lblBtnQuickAdd.textContent = 'มอบหมายงานใหม่';
-    filterAssignee.style.display = 'inline-block';
+  if (state.loggedUser === 'supervisor') {
+    if (readonlyBanner) readonlyBanner.style.display = 'none';
+    if (btnQuickAddTask) btnQuickAddTask.style.display = 'inline-flex';
+
+    if (state.viewingBoard === 'supervisor') {
+      badge.className = 'role-banner-badge supervisor';
+      badge.innerHTML = '👔';
+      title.textContent = 'หน้าหัวหน้างาน - ภาพรวมของทีมงานทั้งหมด';
+      desc.textContent = 'ติดตามสถานะงาน มอบหมายงาน และตรวจสอบความคืบหน้าของลูกทีมทุกคนแบบเรียลไทม์';
+      lblBtnQuickAdd.textContent = '+ มอบหมายงานใหม่';
+      if (filterAssignee) filterAssignee.style.display = 'inline-block';
+    } else {
+      const member = getMemberById(state.viewingBoard);
+      badge.className = 'role-banner-badge';
+      badge.style.background = member.avatarColor ? `${member.avatarColor}20` : '#e0e7ff';
+      badge.style.color = member.avatarColor || '#4f46e5';
+      badge.innerHTML = '👤';
+      title.textContent = `หัวหน้างานกำลังดูบอร์ดของ: ${member.name} (${member.role || 'ทีมงาน'})`;
+      desc.textContent = `คุณสามารถมอบหมายงานใหม่หรือแก้ไขงานให้ ${member.name} ได้`;
+      lblBtnQuickAdd.textContent = `+ มอบหมายงานให้ ${member.name.split(' ')[0]}`;
+      if (filterAssignee) filterAssignee.style.display = 'none';
+    }
   } else {
-    const member = getMemberById(state.currentRole);
-    badge.className = 'role-banner-badge';
-    badge.style.background = member.avatarColor ? `${member.avatarColor}20` : '#e0e7ff';
-    badge.style.color = member.avatarColor || '#4f46e5';
-    badge.innerHTML = '👤';
-    title.textContent = `บอร์ดงานของ ${member.name} (${member.role || 'ทีมงาน'})`;
-    desc.textContent = 'จัดการรายการงานของคุณ ลากวางเพื่อปรับสถานะ หรือแจ้งปัญหาที่พบได้ทันที';
-    lblBtnQuickAdd.textContent = '+ เพิ่มงานของฉัน';
-    filterAssignee.style.display = 'none'; // Hide assignee filter in individual view
+    // Current user is a Team Member
+    if (filterAssignee) filterAssignee.style.display = 'none';
+
+    if (state.viewingBoard === state.loggedUser) {
+      // Viewing own board
+      if (readonlyBanner) readonlyBanner.style.display = 'none';
+      if (btnQuickAddTask) btnQuickAddTask.style.display = 'inline-flex';
+
+      const myMember = getMemberById(state.loggedUser);
+      badge.className = 'role-banner-badge';
+      badge.style.background = myMember.avatarColor ? `${myMember.avatarColor}20` : '#e0e7ff';
+      badge.style.color = myMember.avatarColor || '#4f46e5';
+      badge.innerHTML = '👤';
+      title.textContent = `บอร์ดงานของฉัน: ${myMember.name} (${myMember.role || 'ทีมงาน'})`;
+      desc.textContent = 'จัดการรายการงานของคุณ ลากวางเพื่อปรับสถานะ หรือแนบรูปภาพ/ไฟล์งานได้ทันที';
+      lblBtnQuickAdd.textContent = '+ เพิ่มงานของฉัน';
+    } else {
+      // Viewing another team member's board (READ-ONLY)
+      const targetMember = getMemberById(state.viewingBoard);
+      const myMember = getMemberById(state.loggedUser);
+
+      if (readonlyBanner) readonlyBanner.style.display = 'flex';
+      if (readonlyText) {
+        readonlyText.textContent = `คุณ (${myMember.name}) กำลังดูบอร์ดของ ${targetMember.name} สามารถดูรายละเอียดงานได้ แต่อ่านได้อย่างเดียว ไม่สามารถเพิ่มงานแทนได้`;
+      }
+      
+      if (btnQuickAddTask) btnQuickAddTask.style.display = 'none';
+
+      badge.className = 'role-banner-badge';
+      badge.style.background = '#f1f5f9';
+      badge.style.color = '#64748b';
+      badge.innerHTML = '👁️';
+      title.textContent = `ดูบอร์ดเพื่อนร่วมทีม: ${targetMember.name} (${targetMember.role || 'ทีมงาน'})`;
+      desc.textContent = `โหมดอ่านอย่างเดียว - ดูเพื่อรับทราบความคืบหน้างานของเพื่อนร่วมทีม`;
+    }
   }
 }
 
@@ -2780,13 +3352,13 @@ function renderWorkloadSection() {
 
   grid.innerHTML = html;
 
-  // Add click to switch profile to that member
+  // Add click to switch viewing board to that member
   grid.querySelectorAll('.member-card').forEach(card => {
     card.addEventListener('click', () => {
       const mId = card.getAttribute('data-member-id');
-      saveRole(mId);
+      saveViewingBoard(mId);
       renderApp();
-      showToast(`สลับไปยังบอร์ดของ ${getMemberById(mId).name}`, 'success');
+      showToast(`เปิดดูบอร์ดของ ${getMemberById(mId).name}`, 'success');
     });
   });
 }
@@ -2829,14 +3401,36 @@ function renderKanbanBoard() {
     col.tasks.forEach(task => {
       const member = getMemberById(task.assigneeId);
       const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+      const canManage = state.loggedUser === 'supervisor' || task.assigneeId === state.loggedUser;
+
+      // Attachment cover image & count badge
+      let coverImgHtml = '';
+      let attBadgeHtml = '';
+      const attachments = getTaskAttachments(task);
+      if (attachments.length > 0) {
+        const img = attachments.find(a => {
+          const type = (a.type || '').toLowerCase();
+          const url = (a.url || a.data || '').toLowerCase();
+          return type.startsWith('image/') || url.startsWith('data:image/') || url.match(/\.(jpeg|jpg|gif|png|webp)/i) || (a.name && a.name.match(/\.(jpeg|jpg|gif|png|webp)$/i));
+        });
+        if (img) {
+          const src = img.url || img.data;
+          coverImgHtml = `<div class="card-cover-image" style="background-image: url('${src}'); background-size: cover; background-position: center;" onclick="event.stopPropagation(); openLightbox('${src}')" title="คลิกดูภาพขยาย"></div>`;
+        }
+        attBadgeHtml = `<span class="card-attachment-badge" title="มีไฟล์แนบ ${attachments.length} รายการ">📎 ${attachments.length}</span>`;
+      }
 
       html += `
-        <div class="task-card" draggable="true" data-task-id="${task.id}">
+        <div class="task-card ${canManage ? '' : 'readonly-card'}" draggable="${canManage ? 'true' : 'false'}" data-task-id="${task.id}" style="${canManage ? '' : 'cursor: default;'}">
+          ${coverImgHtml}
           <div class="card-header-meta">
             ${getPriorityBadge(task.priority)}
-            <span style="font-size: 0.72rem; color: var(--text-light);">
-              มอบหมาย: ${formatThaiDate(task.createdDate)}
-            </span>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              ${attBadgeHtml}
+              <span style="font-size: 0.72rem; color: var(--text-light);">
+                มอบหมาย: ${formatThaiDate(task.createdDate)}
+              </span>
+            </div>
           </div>
 
           <div class="card-title">${escapeHTML(task.title)}</div>
@@ -2869,9 +3463,11 @@ function renderKanbanBoard() {
             <button class="btn-card-action btn-quick-view" data-id="${task.id}" title="เปิดดูรายละเอียด">
               👁️ ดูงาน
             </button>
-            <button class="btn-card-action btn-quick-move" data-id="${task.id}" title="เปลี่ยนสถานะ">
-              🔄 เลื่อนสถานะ
-            </button>
+            ${canManage ? `
+              <button class="btn-card-action btn-quick-move" data-id="${task.id}" title="เปลี่ยนสถานะ">
+                🔄 เลื่อนสถานะ
+              </button>
+            ` : ''}
           </div>
         </div>
       `;
@@ -2890,10 +3486,17 @@ function attachKanbanCardEvents() {
   const cards = document.querySelectorAll('.task-card');
   const columns = document.querySelectorAll('.kanban-column');
 
-  // Dragstart / Dragend
+  // Dragstart / Dragend (only allowed for permitted cards)
   cards.forEach(card => {
     card.addEventListener('dragstart', (e) => {
-      state.draggedTaskId = card.getAttribute('data-task-id');
+      const taskId = card.getAttribute('data-task-id');
+      const task = state.tasks.find(t => t.id === taskId);
+      const canManage = state.loggedUser === 'supervisor' || (task && task.assigneeId === state.loggedUser);
+      if (!canManage) {
+        e.preventDefault();
+        return;
+      }
+      state.draggedTaskId = taskId;
       card.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', state.draggedTaskId);
@@ -2956,7 +3559,15 @@ function attachKanbanColumnDropEvents() {
       const newStatus = column.getAttribute('data-status');
 
       if (taskId && newStatus) {
-        handleTaskStatusChange(taskId, newStatus);
+        const task = state.tasks.find(t => t.id === taskId);
+        if (task) {
+          const canManage = state.loggedUser === 'supervisor' || task.assigneeId === state.loggedUser;
+          if (!canManage) {
+            showToast('คุณสามารถเลื่อนสถานะงานของตนเองเท่านั้น', 'warning');
+            return;
+          }
+          handleTaskStatusChange(taskId, newStatus);
+        }
       }
     });
   });
@@ -3026,12 +3637,20 @@ function renderTableView() {
   filteredTasks.forEach(task => {
     const member = getMemberById(task.assigneeId);
     const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+    const canManage = state.loggedUser === 'supervisor' || task.assigneeId === state.loggedUser;
+
+    let attBadge = '';
+    const attachments = getTaskAttachments(task);
+    if (attachments.length > 0) {
+      attBadge = `<span class="card-attachment-badge" style="margin-left:0.35rem;" title="แนบ ${attachments.length} ไฟล์">📎 ${attachments.length}</span>`;
+    }
 
     html += `
       <tr>
         <td>
-          <div style="font-weight: 600; color: var(--text-main); margin-bottom: 0.2rem;">
-            ${escapeHTML(task.title)}
+          <div style="font-weight: 600; color: var(--text-main); margin-bottom: 0.2rem; display: flex; align-items: center;">
+            <span>${escapeHTML(task.title)}</span>
+            ${attBadge}
           </div>
           <div style="font-size: 0.76rem; color: var(--text-muted); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ${escapeHTML(task.description || '-')}
@@ -3056,7 +3675,7 @@ function renderTableView() {
         </td>
 
         <td>
-          <select class="form-select table-status-select" data-id="${task.id}" style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">
+          <select class="form-select table-status-select" data-id="${task.id}" ${canManage ? '' : 'disabled'} style="font-size: 0.8rem; padding: 0.25rem 0.5rem; ${canManage ? '' : 'background:#f1f5f9; cursor:not-allowed; opacity:0.8;'}">
             <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>📝 รอดำเนินการ</option>
             <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>⚙️ กำลังทำ</option>
             <option value="blocked" ${task.status === 'blocked' ? 'selected' : ''}>⚠️ ติดปัญหา</option>
@@ -3085,9 +3704,11 @@ function renderTableView() {
             <button class="btn btn-secondary btn-sm btn-icon" onclick="openTaskDetailModal('${task.id}')" title="ดูรายละเอียด">
               👁️
             </button>
-            <button class="btn btn-secondary btn-sm btn-icon" onclick="openTaskFormModal('${task.id}')" title="แก้ไข">
-              ✏️
-            </button>
+            ${canManage ? `
+              <button class="btn btn-secondary btn-sm btn-icon" onclick="openTaskFormModal('${task.id}')" title="แก้ไข">
+                ✏️
+              </button>
+            ` : ''}
           </div>
         </td>
       </tr>
@@ -3115,6 +3736,8 @@ function openTaskFormModal(taskId = null) {
   const form = document.getElementById('taskForm');
   const assigneeSelect = document.getElementById('taskFormAssignee');
   const blockedGroup = document.getElementById('groupBlockedReason');
+  const lockedNotice = document.getElementById('lockedAssigneeNotice');
+  const lockedName = document.getElementById('lockedAssigneeName');
 
   // Populate Assignee Select
   let assigneeHtml = '';
@@ -3134,6 +3757,12 @@ function openTaskFormModal(taskId = null) {
     const task = state.tasks.find(t => t.id === taskId);
     if (!task) return;
 
+    // Check permission to edit:
+    if (state.loggedUser !== 'supervisor' && task.assigneeId !== state.loggedUser) {
+      showToast('คุณสามารถแก้ไขได้เฉพาะงานของตัวเองเท่านั้น', 'warning');
+      return;
+    }
+
     modalTitle.innerHTML = `<span>แก้ไขข้อมูลงาน</span>`;
     document.getElementById('taskFormId').value = task.id;
     document.getElementById('taskFormTitle').value = task.title;
@@ -3145,6 +3774,23 @@ function openTaskFormModal(taskId = null) {
     document.getElementById('taskFormStatus').value = task.status;
     document.getElementById('taskFormBlockedReason').value = task.blockedReason || '';
 
+    // If supervisor, can change assignee; if member, lock assignee to self
+    if (state.loggedUser === 'supervisor') {
+      assigneeSelect.disabled = false;
+      if (lockedNotice) lockedNotice.style.display = 'none';
+    } else {
+      assigneeSelect.value = state.loggedUser;
+      assigneeSelect.disabled = true;
+      if (lockedNotice) {
+        lockedNotice.style.display = 'block';
+        if (lockedName) lockedName.textContent = getMemberById(state.loggedUser).name;
+      }
+    }
+
+    // Load attachments
+    currentFormAttachments = getTaskAttachments(task);
+    renderFormAttachmentPreviews();
+
     blockedGroup.style.display = task.status === 'blocked' ? 'block' : 'none';
   } else {
     // Create new task
@@ -3154,10 +3800,25 @@ function openTaskFormModal(taskId = null) {
     document.getElementById('taskFormCreatedDate').value = getTodayString();
     document.getElementById('taskFormDeadline').value = getTodayString(3);
 
-    // If current user is a team member, default assignee to themselves!
-    if (state.currentRole !== 'supervisor') {
-      assigneeSelect.value = state.currentRole;
+    if (state.loggedUser !== 'supervisor') {
+      // Locked to current member's own account!
+      assigneeSelect.value = state.loggedUser;
+      assigneeSelect.disabled = true;
+      if (lockedNotice) {
+        lockedNotice.style.display = 'block';
+        if (lockedName) lockedName.textContent = getMemberById(state.loggedUser).name;
+      }
+    } else {
+      // Supervisor can assign to anyone
+      assigneeSelect.disabled = false;
+      if (lockedNotice) lockedNotice.style.display = 'none';
+      if (state.viewingBoard !== 'supervisor') {
+        assigneeSelect.value = state.viewingBoard;
+      }
     }
+
+    currentFormAttachments = [];
+    renderFormAttachmentPreviews();
 
     document.getElementById('taskFormStatus').value = 'todo';
     blockedGroup.style.display = 'none';
@@ -3176,12 +3837,17 @@ function handleSaveTaskForm(e) {
   const taskId = document.getElementById('taskFormId').value;
   const title = document.getElementById('taskFormTitle').value.trim();
   const description = document.getElementById('taskFormDesc').value.trim();
-  const assigneeId = document.getElementById('taskFormAssignee').value;
+  let assigneeId = document.getElementById('taskFormAssignee').value;
   const priority = document.getElementById('taskFormPriority').value;
   const createdDate = document.getElementById('taskFormCreatedDate').value;
   const deadline = document.getElementById('taskFormDeadline').value;
   const status = document.getElementById('taskFormStatus').value;
   const blockedReason = document.getElementById('taskFormBlockedReason').value.trim();
+
+  // If member, strictly enforce assigneeId to loggedUser!
+  if (state.loggedUser !== 'supervisor') {
+    assigneeId = state.loggedUser;
+  }
 
   if (!title) {
     showToast('กรุณาระบุชื่องาน', 'warning');
@@ -3205,6 +3871,7 @@ function handleSaveTaskForm(e) {
       task.deadline = deadline;
       task.status = status;
       task.blockedReason = status === 'blocked' ? blockedReason : '';
+      task.attachments = [...currentFormAttachments];
       task.updatedAt = new Date().toISOString();
       showToast('แก้ไขข้อมูลงานเรียบร้อยแล้ว', 'success');
       autoSyncTask(task);
@@ -3221,6 +3888,7 @@ function handleSaveTaskForm(e) {
       deadline,
       status,
       blockedReason: status === 'blocked' ? blockedReason : '',
+      attachments: [...currentFormAttachments],
       updatedAt: new Date().toISOString()
     };
     state.tasks.unshift(newTask);
@@ -3243,6 +3911,7 @@ function openTaskDetailModal(taskId) {
   const modal = document.getElementById('taskDetailModal');
   const member = getMemberById(task.assigneeId);
   const deadlineInfo = getDeadlineInfo(task.deadline, task.status);
+  const canManage = state.loggedUser === 'supervisor' || task.assigneeId === state.loggedUser;
 
   document.getElementById('detailFullTitle').textContent = task.title;
   document.getElementById('detailDescription').textContent = task.description || '(ไม่มีรายละเอียดเพิ่มเติม)';
@@ -3278,18 +3947,78 @@ function openTaskDetailModal(taskId) {
 
   document.getElementById('detailPriority').innerHTML = getPriorityBadge(task.priority);
 
-  // Edit & Delete button actions
-  document.getElementById('btnEditTaskFromDetail').onclick = () => {
+  // Attachments in Detail Modal
+  const attGroup = document.getElementById('detailAttachmentsGroup');
+  const attContainer = document.getElementById('detailAttachmentsContainer');
+  const attachments = getTaskAttachments(task);
+
+  if (attGroup && attContainer) {
+    if (attachments.length > 0) {
+      attGroup.style.display = 'block';
+      const images = attachments.filter(a => {
+        const type = (a.type || '').toLowerCase();
+        const url = (a.url || a.data || '').toLowerCase();
+        return type.startsWith('image/') || url.startsWith('data:image/') || url.match(/\.(jpeg|jpg|gif|png|webp)/i) || (a.name && a.name.match(/\.(jpeg|jpg|gif|png|webp)$/i));
+      });
+      const docs = attachments.filter(a => !images.includes(a));
+
+      let html = '';
+      if (images.length > 0) {
+        html += '<div class="detail-image-gallery">';
+        images.forEach(img => {
+          const src = img.url || img.data;
+          html += `<div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+            <img src="${src}" class="detail-image-item" alt="${escapeHTML(img.name)}" onclick="openLightbox('${src}')" title="คลิกเพื่อดูรูปขนาดเต็ม (${escapeHTML(img.name)})">
+            <span style="font-size: 0.7rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 110px;">${escapeHTML(img.name || 'รูปภาพ')}</span>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      if (docs.length > 0) {
+        html += '<div class="detail-file-list" style="margin-top: 0.5rem;">';
+        docs.forEach(doc => {
+          const href = doc.url || doc.data;
+          html += `
+            <div class="detail-file-item">
+              <span style="display:flex; align-items:center; gap:0.4rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                📄 <strong>${escapeHTML(doc.name)}</strong> (${formatFileSize(doc.size)})
+              </span>
+              <a href="${href}" download="${escapeHTML(doc.name)}" target="_blank" class="btn btn-secondary btn-sm" style="padding:0.2rem 0.5rem; font-size:0.75rem;">
+                ⬇️ ดาวน์โหลด
+              </a>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+      attContainer.innerHTML = html;
+    } else {
+      attGroup.style.display = 'none';
+      attContainer.innerHTML = '';
+    }
+  }
+
+  // Edit & Delete & Quick Status button visibility based on permission
+  const btnDelete = document.getElementById('btnDeleteTask');
+  const btnEdit = document.getElementById('btnEditTaskFromDetail');
+  const btnChange = document.getElementById('btnChangeStatusQuick');
+
+  if (btnDelete) btnDelete.style.display = canManage ? 'inline-flex' : 'none';
+  if (btnEdit) btnEdit.style.display = canManage ? 'inline-flex' : 'none';
+  if (btnChange) btnChange.style.display = canManage ? 'inline-flex' : 'none';
+
+  btnEdit.onclick = () => {
     closeTaskDetailModal();
     openTaskFormModal(task.id);
   };
 
-  document.getElementById('btnChangeStatusQuick').onclick = (e) => {
+  btnChange.onclick = (e) => {
     showQuickStatusPicker(task.id, e.target);
     closeTaskDetailModal();
   };
 
-  document.getElementById('btnDeleteTask').onclick = () => {
+  btnDelete.onclick = () => {
     if (confirm(`คุณต้องการลบงาน "${task.title}" ใช่หรือไม่?`)) {
       const deletedId = task.id;
       state.tasks = state.tasks.filter(t => t.id !== deletedId);
@@ -3620,21 +4349,29 @@ function escapeHTML(str) {
 // ==========================================================================
 // Google Sheets Cloud Sync Implementation
 // ==========================================================================
+let isFetchingFromSheets = false;
+
 function initCloudSync() {
   updateCloudStatusUI();
   if (state.sheetsUrl) {
-    // Background fetch latest data on startup
+    // Initial fetch from sheets
     fetchFromSheets(true);
   }
 
-  // Periodic polling every 30 seconds if configured
+  // Periodic polling every 3.5 seconds for instant real-time synchronization
   setInterval(() => {
     if (state.sheetsUrl && state.autoSync) {
       fetchFromSheets(true);
     }
-  }, 30000);
+  }, 3500);
 
-  // Auto-sync on window focus
+  // Auto-sync when switching back to tab
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state.sheetsUrl && state.autoSync) {
+      fetchFromSheets(true);
+    }
+  });
+
   window.addEventListener('focus', () => {
     if (state.sheetsUrl && state.autoSync) {
       fetchFromSheets(true);
@@ -3765,12 +4502,16 @@ async function callSheetsAPI(payload) {
 }
 
 async function fetchFromSheets(silent = false) {
-  if (!state.sheetsUrl) return;
+  if (!state.sheetsUrl || isFetchingFromSheets) return;
 
+  isFetchingFromSheets = true;
   const syncIcon = document.getElementById('syncIcon');
-  if (syncIcon) syncIcon.classList.add('spinning');
-  state.syncStatus = 'syncing';
-  updateCloudStatusUI();
+  if (syncIcon && !silent) syncIcon.classList.add('spinning');
+
+  if (!silent) {
+    state.syncStatus = 'syncing';
+    updateCloudStatusUI();
+  }
 
   try {
     let result = null;
@@ -3779,25 +4520,69 @@ async function fetchFromSheets(silent = false) {
         google.script.run.withSuccessHandler(res).withFailureHandler(rej).getAllData();
       });
     } else {
-      const fetchUrl = state.sheetsUrl + (state.sheetsUrl.includes('?') ? '&' : '?') + 'action=getAll';
-      const res = await fetch(fetchUrl);
+      // Add timestamp and cache-control headers to completely bypass browser & proxy caching
+      const fetchUrl = state.sheetsUrl + (state.sheetsUrl.includes('?') ? '&' : '?') + 'action=getAll&_t=' + Date.now();
+      const res = await fetch(fetchUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       result = await res.json();
     }
 
     if (result && result.ok) {
+      let hasChanges = false;
+
       if (Array.isArray(result.members) && result.members.length > 0) {
-        state.members = result.members;
-        saveMembers();
+        if (JSON.stringify(state.members) !== JSON.stringify(result.members)) {
+          state.members = result.members;
+          saveMembers();
+          hasChanges = true;
+        }
       }
+
       if (Array.isArray(result.tasks)) {
-        state.tasks = result.tasks;
-        saveTasks();
+        // Smart merge: if local task has attachments, but cloud task returned empty attachments, don't wipe local attachments!
+        const mergedTasks = result.tasks.map(cloudTask => {
+          const localTask = state.tasks.find(t => t.id === cloudTask.id);
+          const cloudAtts = getTaskAttachments(cloudTask);
+          const localAtts = getTaskAttachments(localTask);
+
+          if (cloudAtts.length === 0 && localAtts.length > 0) {
+            cloudTask.attachments = localAtts;
+          } else {
+            cloudTask.attachments = cloudAtts;
+          }
+          return cloudTask;
+        });
+
+        // Also keep any local task that hasn't synced to cloud yet
+        state.tasks.forEach(localTask => {
+          if (!mergedTasks.find(ct => ct.id === localTask.id)) {
+            mergedTasks.unshift(localTask);
+          }
+        });
+
+        if (JSON.stringify(state.tasks) !== JSON.stringify(mergedTasks)) {
+          state.tasks = mergedTasks;
+          saveTasks();
+          hasChanges = true;
+        }
       }
 
       state.syncStatus = 'connected';
       state.lastSyncTime = new Date().toISOString();
       updateCloudStatusUI();
-      renderApp();
+
+      if (hasChanges) {
+        renderApp();
+        if (silent) {
+          showToast('🔄 อัปเดตข้อมูลล่าสุดจากทีมงานเรียบร้อยแล้ว', 'info');
+        }
+      }
 
       if (!silent) {
         showToast('ดึงข้อมูลล่าสุดจาก Google Sheets สำเร็จ!', 'success');
@@ -3813,6 +4598,7 @@ async function fetchFromSheets(silent = false) {
       showToast('ไม่สามารถเชื่อมต่อ Google Sheets ได้ ตรวจสอบ URL อีกครั้ง', 'error');
     }
   } finally {
+    isFetchingFromSheets = false;
     if (syncIcon) syncIcon.classList.remove('spinning');
   }
 }
@@ -3855,34 +4641,75 @@ async function pushToSheets() {
 }
 
 function autoSyncTask(task) {
-  if (!state.sheetsUrl || !state.autoSync) return;
+  if (!state.sheetsUrl) {
+    showToast(`⚠️ บันทึกงานในเครื่องแล้ว แต่ยังไม่ได้เชื่อมต่อ Google Sheets`, 'warning');
+    return;
+  }
+  if (!state.autoSync) return;
+
+  const syncIcon = document.getElementById('syncIcon');
+  if (syncIcon) syncIcon.classList.add('spinning');
+
   callSheetsAPI({ action: 'saveTask', task }).then(() => {
     state.syncStatus = 'connected';
     state.lastSyncTime = new Date().toISOString();
     updateCloudStatusUI();
+    // Promptly verify sync with cloud
+    setTimeout(() => fetchFromSheets(true), 1200);
   }).catch(err => {
     console.warn('AutoSync task failed:', err);
+    state.syncStatus = 'error';
+    updateCloudStatusUI();
+  }).finally(() => {
+    if (syncIcon) syncIcon.classList.remove('spinning');
   });
 }
 
 function autoSyncDeleteTask(taskId) {
   if (!state.sheetsUrl || !state.autoSync) return;
-  callSheetsAPI({ action: 'deleteTask', id: taskId }).catch(err => {
+  callSheetsAPI({ action: 'deleteTask', id: taskId }).then(() => {
+    setTimeout(() => fetchFromSheets(true), 1200);
+  }).catch(err => {
     console.warn('AutoSync delete task failed:', err);
   });
 }
 
 function autoSyncMember(member) {
-  if (!state.sheetsUrl || !state.autoSync) return;
-  callSheetsAPI({ action: 'saveMember', member }).catch(err => {
-    console.warn('AutoSync member failed:', err);
+  if (!state.sheetsUrl) {
+    showToast(`⚠️ เพิ่ม "${member.name}" ในเครื่องแล้ว แต่ยังไม่ได้เชื่อมต่อ Google Sheets (กดปุ่ม ☁️ เพื่อเชื่อมต่อ)`, 'warning');
+    return;
+  }
+  if (!state.autoSync) return;
+
+  const syncIcon = document.getElementById('syncIcon');
+  if (syncIcon) syncIcon.classList.add('spinning');
+  state.syncStatus = 'syncing';
+  updateCloudStatusUI();
+
+  callSheetsAPI({ action: 'saveMember', member }).then((res) => {
+    state.syncStatus = 'connected';
+    state.lastSyncTime = new Date().toISOString();
+    updateCloudStatusUI();
+    showToast(`🟢 ซิงค์สมาชิก "${member.name}" ขึ้น Google Sheets เรียบร้อยแล้ว`, 'success');
+  }).catch(err => {
+    console.error('AutoSync member failed:', err);
+    state.syncStatus = 'error';
+    updateCloudStatusUI();
+    showToast('⚠️ ไม่สามารถซิงค์สมาชิกขึ้น Google Sheets ได้ ตรวจสอบการเชื่อมต่อ', 'error');
+  }).finally(() => {
+    if (syncIcon) syncIcon.classList.remove('spinning');
   });
 }
 
 function autoSyncDeleteMember(memberId) {
   if (!state.sheetsUrl || !state.autoSync) return;
-  callSheetsAPI({ action: 'deleteMember', id: memberId }).catch(err => {
-    console.warn('AutoSync delete member failed:', err);
+  callSheetsAPI({ action: 'deleteMember', id: memberId }).then(() => {
+    state.syncStatus = 'connected';
+    state.lastSyncTime = new Date().toISOString();
+    updateCloudStatusUI();
+    showToast('ลบสมาชิกออกจาก Google Sheets เรียบร้อยแล้ว', 'info');
+  }).catch(err => {
+    console.error('AutoSync delete member failed:', err);
   });
 }
 
@@ -3938,9 +4765,13 @@ async function testAndSaveSheetsUrl() {
 // Event Listeners Binding
 // ==========================================================================
 function bindEvents() {
-  // Brand Click -> Return to Supervisor
+  // Brand Click -> Return to Supervisor Master View or Own Board
   document.getElementById('btnGoHome').addEventListener('click', () => {
-    saveRole('supervisor');
+    if (state.loggedUser === 'supervisor') {
+      saveViewingBoard('supervisor');
+    } else {
+      saveViewingBoard(state.loggedUser);
+    }
     renderApp();
   });
 
@@ -3962,15 +4793,62 @@ function bindEvents() {
     const item = e.target.closest('.menu-item');
     if (!item) return;
 
-    const role = item.getAttribute('data-role');
-    if (role) {
-      saveRole(role);
+    const userId = item.getAttribute('data-user-id') || item.getAttribute('data-role');
+    if (userId) {
+      saveUserIdentity(userId);
       renderApp();
       profileMenu.classList.remove('show');
-      const name = role === 'supervisor' ? 'หัวหน้างาน' : getMemberById(role).name;
-      showToast(`สลับไปยังมุมมอง: ${name}`, 'success');
+      const name = userId === 'supervisor' ? 'หัวหน้างาน (Supervisor)' : getMemberById(userId).name;
+      showToast(`เข้าสู่ระบบเป็น: ${name}`, 'success');
     }
   });
+
+  // Return to my board button
+  const btnReturn = document.getElementById('btnReturnToMyBoard');
+  if (btnReturn) {
+    btnReturn.addEventListener('click', () => {
+      saveViewingBoard(state.loggedUser);
+      renderApp();
+      showToast('กลับสู่บอร์ดงานของคุณแล้ว', 'info');
+    });
+  }
+
+  // Lightbox Close Events
+  const btnCloseLightbox = document.getElementById('btnCloseLightbox');
+  const lightboxModal = document.getElementById('imageLightboxModal');
+  if (btnCloseLightbox) {
+    btnCloseLightbox.addEventListener('click', closeLightbox);
+  }
+  if (lightboxModal) {
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) closeLightbox();
+    });
+  }
+
+  // File Upload Dropzone Events
+  const fileDropzone = document.getElementById('fileUploadDropzone');
+  const fileInput = document.getElementById('taskFileInput');
+  if (fileDropzone && fileInput) {
+    fileDropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      handleFilesSelected(e.target.files);
+      fileInput.value = '';
+    });
+    fileDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileDropzone.classList.add('drag-over');
+    });
+    fileDropzone.addEventListener('dragleave', () => {
+      fileDropzone.classList.remove('drag-over');
+    });
+    fileDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileDropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFilesSelected(e.dataTransfer.files);
+      }
+    });
+  }
 
   // Search Input with Debounce
   let searchTimeout = null;
@@ -4135,6 +5013,8 @@ function bindEvents() {
 window.openTaskDetailModal = openTaskDetailModal;
 window.openTaskFormModal = openTaskFormModal;
 window.deleteMember = deleteMember;
+window.removeFormAttachment = removeFormAttachment;
+window.openLightbox = openLightbox;
 
 // Start app on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', initApp);

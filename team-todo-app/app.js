@@ -8,7 +8,7 @@
 // ==========================================================================
 // (ตัวเลือกแนะนำ) นำ Web App URL ของ Google Sheets มาวางที่นี่
 // เพื่อให้ทุกคนที่เปิดเว็บผ่านลิงก์ (เช่น GitHub Pages) เชื่อมต่อชีตอัตโนมัติทันทีโดยไม่ต้องตั้งค่าเอง
-const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwYIPKgH-9zMkQUjQND7sIgqjl5jm2e1sj9JpyjFrX3TBpGKd8Mgbk2M0NPOsBCPs_3gw/exec';
+const DEFAULT_SHEETS_URL = '';
 
 const STORAGE_KEY_TASKS = 'team_tasks_data_v1';
 const STORAGE_KEY_MEMBERS = 'team_members_data_v1';
@@ -168,10 +168,19 @@ function loadStoredData() {
       state.viewingBoard = state.loggedUser;
     }
 
-    const storedSheetsUrl = localStorage.getItem(STORAGE_KEY_SHEETS_URL) || DEFAULT_SHEETS_URL;
-    if (storedSheetsUrl) {
-      state.sheetsUrl = storedSheetsUrl;
+    // Check if sheetsUrl was passed in URL query param (e.g. ?sheetsUrl=https://script.google.com/...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const querySheetsUrl = urlParams.get('sheetsUrl') || urlParams.get('api');
+    if (querySheetsUrl && querySheetsUrl.startsWith('https://script.google.com/')) {
+      localStorage.setItem(STORAGE_KEY_SHEETS_URL, querySheetsUrl);
+      state.sheetsUrl = querySheetsUrl;
       state.syncStatus = 'connected';
+    } else {
+      const storedSheetsUrl = localStorage.getItem(STORAGE_KEY_SHEETS_URL) || DEFAULT_SHEETS_URL;
+      if (storedSheetsUrl) {
+        state.sheetsUrl = storedSheetsUrl;
+        state.syncStatus = 'connected';
+      }
     }
 
     const storedAutoSync = localStorage.getItem(STORAGE_KEY_AUTO_SYNC);
@@ -202,7 +211,22 @@ function saveViewingBoard(boardId) {
 // ==========================================================================
 // File & Photo Attachment Handling
 // ==========================================================================
-function compressImageFile(file, maxWidth = 1200, quality = 0.8) {
+function getTaskAttachments(task) {
+  if (!task || !task.attachments) return [];
+  if (Array.isArray(task.attachments)) return task.attachments;
+  if (typeof task.attachments === 'string') {
+    try {
+      let parsed = JSON.parse(task.attachments);
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
+function compressImageFile(file, maxWidth = 1000, quality = 0.75) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -228,7 +252,16 @@ function compressImageFile(file, maxWidth = 1200, quality = 0.8) {
           data: dataUrl
         });
       };
-      img.onerror = () => resolve(null);
+      img.onerror = () => {
+        // Fallback: if canvas fails to render, return raw data URL
+        resolve({
+          id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          name: file.name,
+          size: file.size,
+          type: file.type || 'image/jpeg',
+          data: e.target.result
+        });
+      };
       img.src = e.target.result;
     };
     reader.onerror = () => resolve(null);
@@ -823,13 +856,18 @@ function renderKanbanBoard() {
       // Attachment cover image & count badge
       let coverImgHtml = '';
       let attBadgeHtml = '';
-      if (task.attachments && task.attachments.length > 0) {
-        const img = task.attachments.find(a => (a.type && a.type.startsWith('image/')) || (a.url && a.url.match(/\.(jpeg|jpg|gif|png|webp)/i)));
+      const attachments = getTaskAttachments(task);
+      if (attachments.length > 0) {
+        const img = attachments.find(a => {
+          const type = (a.type || '').toLowerCase();
+          const url = (a.url || a.data || '').toLowerCase();
+          return type.startsWith('image/') || url.startsWith('data:image/') || url.match(/\.(jpeg|jpg|gif|png|webp)/i) || (a.name && a.name.match(/\.(jpeg|jpg|gif|png|webp)$/i));
+        });
         if (img) {
           const src = img.url || img.data;
           coverImgHtml = `<div class="card-cover-image" style="background-image: url('${src}'); background-size: cover; background-position: center;" onclick="event.stopPropagation(); openLightbox('${src}')" title="คลิกดูภาพขยาย"></div>`;
         }
-        attBadgeHtml = `<span class="card-attachment-badge" title="มีไฟล์แนบ ${task.attachments.length} รายการ">📎 ${task.attachments.length}</span>`;
+        attBadgeHtml = `<span class="card-attachment-badge" title="มีไฟล์แนบ ${attachments.length} รายการ">📎 ${attachments.length}</span>`;
       }
 
       html += `
@@ -1052,8 +1090,9 @@ function renderTableView() {
     const canManage = state.loggedUser === 'supervisor' || task.assigneeId === state.loggedUser;
 
     let attBadge = '';
-    if (task.attachments && task.attachments.length > 0) {
-      attBadge = `<span class="card-attachment-badge" style="margin-left:0.35rem;" title="แนบ ${task.attachments.length} ไฟล์">📎 ${task.attachments.length}</span>`;
+    const attachments = getTaskAttachments(task);
+    if (attachments.length > 0) {
+      attBadge = `<span class="card-attachment-badge" style="margin-left:0.35rem;" title="แนบ ${attachments.length} ไฟล์">📎 ${attachments.length}</span>`;
     }
 
     html += `
@@ -1199,7 +1238,7 @@ function openTaskFormModal(taskId = null) {
     }
 
     // Load attachments
-    currentFormAttachments = task.attachments ? JSON.parse(JSON.stringify(task.attachments)) : [];
+    currentFormAttachments = getTaskAttachments(task);
     renderFormAttachmentPreviews();
 
     blockedGroup.style.display = task.status === 'blocked' ? 'block' : 'none';
@@ -1361,18 +1400,27 @@ function openTaskDetailModal(taskId) {
   // Attachments in Detail Modal
   const attGroup = document.getElementById('detailAttachmentsGroup');
   const attContainer = document.getElementById('detailAttachmentsContainer');
+  const attachments = getTaskAttachments(task);
+
   if (attGroup && attContainer) {
-    if (task.attachments && task.attachments.length > 0) {
+    if (attachments.length > 0) {
       attGroup.style.display = 'block';
-      const images = task.attachments.filter(a => (a.type && a.type.startsWith('image/')) || (a.url && a.url.match(/\.(jpeg|jpg|gif|png|webp)/i)));
-      const docs = task.attachments.filter(a => !images.includes(a));
+      const images = attachments.filter(a => {
+        const type = (a.type || '').toLowerCase();
+        const url = (a.url || a.data || '').toLowerCase();
+        return type.startsWith('image/') || url.startsWith('data:image/') || url.match(/\.(jpeg|jpg|gif|png|webp)/i) || (a.name && a.name.match(/\.(jpeg|jpg|gif|png|webp)$/i));
+      });
+      const docs = attachments.filter(a => !images.includes(a));
 
       let html = '';
       if (images.length > 0) {
         html += '<div class="detail-image-gallery">';
         images.forEach(img => {
           const src = img.url || img.data;
-          html += `<img src="${src}" class="detail-image-item" alt="${escapeHTML(img.name)}" onclick="openLightbox('${src}')" title="คลิกเพื่อดูรูปขนาดเต็ม (${escapeHTML(img.name)})">`;
+          html += `<div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+            <img src="${src}" class="detail-image-item" alt="${escapeHTML(img.name)}" onclick="openLightbox('${src}')" title="คลิกเพื่อดูรูปขนาดเต็ม (${escapeHTML(img.name)})">
+            <span style="font-size: 0.7rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 110px;">${escapeHTML(img.name || 'รูปภาพ')}</span>
+          </div>`;
         });
         html += '</div>';
       }
@@ -1751,21 +1799,29 @@ function escapeHTML(str) {
 // ==========================================================================
 // Google Sheets Cloud Sync Implementation
 // ==========================================================================
+let isFetchingFromSheets = false;
+
 function initCloudSync() {
   updateCloudStatusUI();
   if (state.sheetsUrl) {
-    // Background fetch latest data on startup
+    // Initial fetch from sheets
     fetchFromSheets(true);
   }
 
-  // Periodic polling every 5 seconds for fast real-time updates
+  // Periodic polling every 3.5 seconds for instant real-time synchronization
   setInterval(() => {
     if (state.sheetsUrl && state.autoSync) {
       fetchFromSheets(true);
     }
-  }, 5000);
+  }, 3500);
 
-  // Auto-sync on window focus
+  // Auto-sync when switching back to tab
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state.sheetsUrl && state.autoSync) {
+      fetchFromSheets(true);
+    }
+  });
+
   window.addEventListener('focus', () => {
     if (state.sheetsUrl && state.autoSync) {
       fetchFromSheets(true);
@@ -1896,12 +1952,16 @@ async function callSheetsAPI(payload) {
 }
 
 async function fetchFromSheets(silent = false) {
-  if (!state.sheetsUrl) return;
+  if (!state.sheetsUrl || isFetchingFromSheets) return;
 
+  isFetchingFromSheets = true;
   const syncIcon = document.getElementById('syncIcon');
-  if (syncIcon) syncIcon.classList.add('spinning');
-  state.syncStatus = 'syncing';
-  updateCloudStatusUI();
+  if (syncIcon && !silent) syncIcon.classList.add('spinning');
+
+  if (!silent) {
+    state.syncStatus = 'syncing';
+    updateCloudStatusUI();
+  }
 
   try {
     let result = null;
@@ -1910,25 +1970,69 @@ async function fetchFromSheets(silent = false) {
         google.script.run.withSuccessHandler(res).withFailureHandler(rej).getAllData();
       });
     } else {
-      const fetchUrl = state.sheetsUrl + (state.sheetsUrl.includes('?') ? '&' : '?') + 'action=getAll';
-      const res = await fetch(fetchUrl);
+      // Add timestamp and cache-control headers to completely bypass browser & proxy caching
+      const fetchUrl = state.sheetsUrl + (state.sheetsUrl.includes('?') ? '&' : '?') + 'action=getAll&_t=' + Date.now();
+      const res = await fetch(fetchUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       result = await res.json();
     }
 
     if (result && result.ok) {
+      let hasChanges = false;
+
       if (Array.isArray(result.members) && result.members.length > 0) {
-        state.members = result.members;
-        saveMembers();
+        if (JSON.stringify(state.members) !== JSON.stringify(result.members)) {
+          state.members = result.members;
+          saveMembers();
+          hasChanges = true;
+        }
       }
+
       if (Array.isArray(result.tasks)) {
-        state.tasks = result.tasks;
-        saveTasks();
+        // Smart merge: if local task has attachments, but cloud task returned empty attachments, don't wipe local attachments!
+        const mergedTasks = result.tasks.map(cloudTask => {
+          const localTask = state.tasks.find(t => t.id === cloudTask.id);
+          const cloudAtts = getTaskAttachments(cloudTask);
+          const localAtts = getTaskAttachments(localTask);
+
+          if (cloudAtts.length === 0 && localAtts.length > 0) {
+            cloudTask.attachments = localAtts;
+          } else {
+            cloudTask.attachments = cloudAtts;
+          }
+          return cloudTask;
+        });
+
+        // Also keep any local task that hasn't synced to cloud yet
+        state.tasks.forEach(localTask => {
+          if (!mergedTasks.find(ct => ct.id === localTask.id)) {
+            mergedTasks.unshift(localTask);
+          }
+        });
+
+        if (JSON.stringify(state.tasks) !== JSON.stringify(mergedTasks)) {
+          state.tasks = mergedTasks;
+          saveTasks();
+          hasChanges = true;
+        }
       }
 
       state.syncStatus = 'connected';
       state.lastSyncTime = new Date().toISOString();
       updateCloudStatusUI();
-      renderApp();
+
+      if (hasChanges) {
+        renderApp();
+        if (silent) {
+          showToast('🔄 อัปเดตข้อมูลล่าสุดจากทีมงานเรียบร้อยแล้ว', 'info');
+        }
+      }
 
       if (!silent) {
         showToast('ดึงข้อมูลล่าสุดจาก Google Sheets สำเร็จ!', 'success');
@@ -1944,6 +2048,7 @@ async function fetchFromSheets(silent = false) {
       showToast('ไม่สามารถเชื่อมต่อ Google Sheets ได้ ตรวจสอบ URL อีกครั้ง', 'error');
     }
   } finally {
+    isFetchingFromSheets = false;
     if (syncIcon) syncIcon.classList.remove('spinning');
   }
 }
@@ -1992,20 +2097,29 @@ function autoSyncTask(task) {
   }
   if (!state.autoSync) return;
 
+  const syncIcon = document.getElementById('syncIcon');
+  if (syncIcon) syncIcon.classList.add('spinning');
+
   callSheetsAPI({ action: 'saveTask', task }).then(() => {
     state.syncStatus = 'connected';
     state.lastSyncTime = new Date().toISOString();
     updateCloudStatusUI();
+    // Promptly verify sync with cloud
+    setTimeout(() => fetchFromSheets(true), 1200);
   }).catch(err => {
     console.warn('AutoSync task failed:', err);
     state.syncStatus = 'error';
     updateCloudStatusUI();
+  }).finally(() => {
+    if (syncIcon) syncIcon.classList.remove('spinning');
   });
 }
 
 function autoSyncDeleteTask(taskId) {
   if (!state.sheetsUrl || !state.autoSync) return;
-  callSheetsAPI({ action: 'deleteTask', id: taskId }).catch(err => {
+  callSheetsAPI({ action: 'deleteTask', id: taskId }).then(() => {
+    setTimeout(() => fetchFromSheets(true), 1200);
+  }).catch(err => {
     console.warn('AutoSync delete task failed:', err);
   });
 }

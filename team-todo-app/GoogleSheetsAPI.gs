@@ -24,11 +24,14 @@
 // (ตัวเลือก) หากสร้าง Apps Script แยกต่างหากโดยไม่ได้เปิดจากใน Google Sheets ให้ใส่ Spreadsheet ID ที่นี่
 const SPREADSHEET_ID = '';
 
+// ชื่อโฟลเดอร์สำหรับจัดเก็บรูปภาพและไฟล์แนบบน Google Drive
+const FILE_FOLDER_NAME = 'TeamTask_Files';
+
 // โครงสร้างคอลัมน์ของแต่ละตาราง (Schemas)
 const SHEET_SCHEMAS = {
   Tasks: [
     'id', 'title', 'description', 'assigneeId', 'assigneeName',
-    'priority', 'createdDate', 'deadline', 'status', 'blockedReason', 'updatedAt'
+    'priority', 'createdDate', 'deadline', 'status', 'blockedReason', 'attachments', 'updatedAt'
   ],
   Members: [
     'id', 'name', 'role', 'avatarColor'
@@ -134,6 +137,83 @@ function getSpreadsheet() {
   return active;
 }
 
+function getOrCreateFileFolder() {
+  const folders = DriveApp.getFoldersByName(FILE_FOLDER_NAME);
+  let folder;
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder(FILE_FOLDER_NAME);
+  }
+  try {
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch (e) {}
+  return folder;
+}
+
+function uploadAttachmentToDrive(att, taskPrefix) {
+  if (!att) return null;
+  // If already uploaded and has URL without raw base64 data
+  if (att.url && (!att.data || !att.data.startsWith('data:'))) {
+    return {
+      id: att.id || ('file_' + Date.now()),
+      name: att.name || 'file',
+      type: att.type || 'application/octet-stream',
+      size: att.size || 0,
+      url: att.url
+    };
+  }
+
+  if (!att.data || typeof att.data !== 'string' || !att.data.startsWith('data:')) {
+    return att;
+  }
+
+  try {
+    const match = att.data.match(/^data:([^;]+);base64,(.+)$/);
+    if (!match) return att;
+
+    const mimeType = match[1];
+    const base64Data = match[2];
+    const bytes = Utilities.base64Decode(base64Data);
+    const fileName = att.name || `${taskPrefix}_file_${Date.now()}`;
+    const blob = Utilities.newBlob(bytes, mimeType, fileName);
+
+    const folder = getOrCreateFileFolder();
+    const file = folder.createFile(blob);
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (e) {}
+
+    let viewUrl = '';
+    if (mimeType.startsWith('image/')) {
+      viewUrl = `https://lh3.googleusercontent.com/d/${file.getId()}=w1200`;
+    } else {
+      viewUrl = `https://drive.google.com/file/d/${file.getId()}/view?usp=sharing`;
+    }
+
+    return {
+      id: att.id || ('file_' + Date.now()),
+      name: fileName,
+      type: mimeType,
+      size: att.size || bytes.length,
+      url: viewUrl,
+      driveFileId: file.getId()
+    };
+  } catch (err) {
+    console.error('Error uploading to drive:', err);
+    return att;
+  }
+}
+
+function safeJsonParse(str, fallback) {
+  if (!str) return fallback;
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return fallback;
+  }
+}
+
 /**
  * เรียกใช้ฟังก์ชันนี้เพื่อสร้างตารางทั้งหมด และเตรียมข้อมูลเริ่มต้น
  */
@@ -155,6 +235,12 @@ function setupDatabase() {
         .setFontColor('#ffffff')
         .setHorizontalAlignment('center');
       sh.setFrozenRows(1);
+    } else {
+      // ตรวจสอบคอลัมน์เดิม ถ้ายังไม่มี attachments ให้เพิ่มที่หัวตาราง
+      const currentHeaders = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+      if (name === 'Tasks' && !currentHeaders.includes('attachments')) {
+        sh.getRange(1, 1, 1, headers.length).setValues([headers]);
+      }
     }
   });
 
@@ -170,18 +256,19 @@ function setupDatabase() {
   if (taskSheet.getLastRow() <= 1) {
     const taskRows = INITIAL_TASKS.map(t => [
       t.id, t.title, t.description, t.assigneeId, t.assigneeName,
-      t.priority, t.createdDate, t.deadline, t.status, t.blockedReason, t.updatedAt
+      t.priority, t.createdDate, t.deadline, t.status, t.blockedReason, '[]', t.updatedAt
     ]);
-    taskSheet.getRange(2, 1, taskRows.length, 11).setValues(taskRows);
+    taskSheet.getRange(2, 1, taskRows.length, 12).setValues(taskRows);
   }
 
   // ปรับขนาดคอลัมน์ให้อ่านง่าย
   try {
-    taskSheet.autoResizeColumns(1, 11);
+    taskSheet.autoResizeColumns(1, 12);
     memberSheet.autoResizeColumns(1, 4);
   } catch (e) {}
 
-  return { ok: true, message: 'ตั้งค่าระบบฐานข้อมูล Google Sheets สำเร็จเรียบร้อยแล้ว' };
+  getOrCreateFileFolder();
+  return { ok: true, message: 'ตั้งค่าระบบฐานข้อมูล Google Sheets และโฟลเดอร์ไฟล์แนบเรียบร้อยแล้ว' };
 }
 
 function ensureSheet(name) {
@@ -190,6 +277,25 @@ function ensureSheet(name) {
   if (!sh || sh.getLastRow() === 0) {
     setupDatabase();
     sh = ss.getSheetByName(name);
+  } else if (name === 'Tasks') {
+    // Auto-migrate: check if 'attachments' header column exists in Tasks
+    try {
+      const lastCol = Math.max(sh.getLastColumn(), 1);
+      const headers = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+      if (!headers.includes('attachments')) {
+        const updatedIdx = headers.indexOf('updatedAt');
+        if (updatedIdx !== -1) {
+          sh.insertColumnBefore(updatedIdx + 1);
+          sh.getRange(1, updatedIdx + 1).setValue('attachments')
+            .setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff').setHorizontalAlignment('center');
+        } else {
+          sh.getRange(1, headers.length + 1).setValue('attachments')
+            .setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff').setHorizontalAlignment('center');
+        }
+      }
+    } catch (e) {
+      console.warn('Auto-migrate error:', e);
+    }
   }
   return sh;
 }
@@ -235,6 +341,7 @@ function getAllData() {
     deadline: formatCellDate(t.deadline),
     status: String(t.status || 'todo'),
     blockedReason: String(t.blockedReason || ''),
+    attachments: safeJsonParse(t.attachments, []),
     updatedAt: formatCellIso(t.updatedAt)
   }));
 
@@ -267,14 +374,16 @@ function formatCellIso(val) {
 function upsertRowById(sheetName, headers, rowObj) {
   const sh = ensureSheet(sheetName);
   const values = sh.getDataRange().getValues();
-  const rowArray = headers.map(h => rowObj[h] !== undefined ? rowObj[h] : '');
+  const currentHeaders = values[0] || headers;
+  const useHeaders = (currentHeaders && currentHeaders.includes('attachments')) ? currentHeaders : headers;
+  const rowArray = useHeaders.map(h => rowObj[h] !== undefined ? rowObj[h] : '');
 
   const idCol = 0; // id อยู่คอลัมน์แรกเสมอ
   const targetId = String(rowObj.id);
 
   for (let i = 1; i < values.length; i++) {
     if (String(values[i][idCol]) === targetId) {
-      sh.getRange(i + 1, 1, 1, headers.length).setValues([rowArray]);
+      sh.getRange(i + 1, 1, 1, useHeaders.length).setValues([rowArray]);
       return { ok: true, action: 'updated', id: targetId };
     }
   }
@@ -307,6 +416,14 @@ function saveTaskToSheet(task) {
   const members = readSheetAsObjects('Members');
   const member = members.find(m => String(m.id) === String(task.assigneeId));
   task.assigneeName = member ? member.name : '';
+
+  // จัดการอัปโหลดไฟล์และรูปภาพขึ้น Google Drive
+  if (Array.isArray(task.attachments)) {
+    const processed = task.attachments.map((att, idx) => uploadAttachmentToDrive(att, `${task.id}_${idx + 1}`)).filter(Boolean);
+    task.attachments = JSON.stringify(processed);
+  } else if (typeof task.attachments !== 'string') {
+    task.attachments = '[]';
+  }
 
   if (!task.updatedAt) task.updatedAt = new Date().toISOString();
 
@@ -373,6 +490,33 @@ function doGet(e) {
 
     if (action === 'getAll') {
       return jsonResponse(getAllData());
+    }
+
+    if (action === 'saveMember') {
+      const member = {
+        id: e.parameter.id,
+        name: e.parameter.name,
+        role: e.parameter.role,
+        avatarColor: e.parameter.avatarColor || '#4f46e5'
+      };
+      return jsonResponse(saveMemberToSheet(member));
+    }
+
+    if (action === 'deleteMember') {
+      return jsonResponse(deleteRowById('Members', e.parameter.id));
+    }
+
+    if (action === 'saveTask' && e.parameter.task) {
+      try {
+        const task = JSON.parse(e.parameter.task);
+        return jsonResponse(saveTaskToSheet(task));
+      } catch (err) {
+        return jsonResponse({ ok: false, error: 'JSON parse error: ' + err });
+      }
+    }
+
+    if (action === 'deleteTask' && e.parameter.id) {
+      return jsonResponse(deleteRowById('Tasks', e.parameter.id));
     }
 
     // หากเปิดผ่าน Web App URL โดยตรงบนเบราว์เซอร์ (ทั้งคอมพิวเตอร์และมือถือ)
