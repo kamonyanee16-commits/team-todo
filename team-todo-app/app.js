@@ -32,6 +32,11 @@ function getTodayString(offsetDays = 0) {
   return d.toISOString().split('T')[0];
 }
 
+// Sample Demonstration SVG Images for initial tasks
+const SAMPLE_IMAGE_SALT_SPRAY = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'><rect width='600' height='360' fill='%231e293b'/><rect x='30' y='30' width='540' height='300' rx='10' fill='%23334155' stroke='%23475569' stroke-width='3'/><circle cx='80' cy='80' r='12' fill='%2394a3b8'/><circle cx='520' cy='80' r='12' fill='%2394a3b8'/><circle cx='80' cy='280' r='12' fill='%2394a3b8'/><circle cx='520' cy='280' r='12' fill='%2394a3b8'/><path d='M120 160 Q300 110 480 180' stroke='%23f59e0b' stroke-width='8' stroke-linecap='round' fill='none'/><text x='300' y='220' font-family='sans-serif' font-size='20' font-weight='bold' fill='%23f8fafc' text-anchor='middle'>ตัวอย่างชิ้นงานทดสอบ Salt Spray</text><text x='300' y='250' font-family='sans-serif' font-size='14' fill='%2394a3b8' text-anchor='middle'>ASTM B117 - Corrosion Test Lab</text></svg>";
+
+const SAMPLE_IMAGE_HBEAM = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'><rect width='600' height='360' fill='%230f172a'/><rect x='60' y='140' width='480' height='80' fill='%23334155'/><path d='M60 140 L120 90 L540 90 L480 140 Z' fill='%23475569'/><line x1='120' y1='180' x2='480' y2='180' stroke='%2338bdf8' stroke-width='6' stroke-dasharray='10 5'/><text x='300' y='260' font-family='sans-serif' font-size='20' font-weight='bold' fill='%23f8fafc' text-anchor='middle'>ผลการตรวจแนวเชื่อม H-Beam</text><text x='300' y='290' font-family='sans-serif' font-size='14' fill='%2338bdf8' text-anchor='middle'>Ultrasonic Testing Passed</text></svg>";
+
 // Initial Tasks covering different statuses and deadlines
 const DEFAULT_TASKS = [
   {
@@ -44,6 +49,16 @@ const DEFAULT_TASKS = [
     assigneeId: 'mem1',
     priority: 'urgent',
     blockedReason: '',
+    attachments: [
+      {
+        id: 'att_demo_001',
+        name: 'ภาพตรวจแนวเชื่อม_HBeam.svg',
+        type: 'image/svg+xml',
+        size: 1420,
+        url: SAMPLE_IMAGE_HBEAM,
+        data: SAMPLE_IMAGE_HBEAM
+      }
+    ],
     updatedAt: new Date().toISOString()
   },
   {
@@ -56,6 +71,16 @@ const DEFAULT_TASKS = [
     assigneeId: 'mem2',
     priority: 'high',
     blockedReason: 'ห้องแล็บภายนอกแจ้งว่าเครื่องทดสอบอยู่ระหว่างการสอบเทียบ (Calibration) คาดว่าจะได้ผลตรวจวันศุกร์นี้',
+    attachments: [
+      {
+        id: 'att_demo_002',
+        name: 'ชิ้นงานทดสอบ_Salt_Spray.svg',
+        type: 'image/svg+xml',
+        size: 1540,
+        url: SAMPLE_IMAGE_SALT_SPRAY,
+        data: SAMPLE_IMAGE_SALT_SPRAY
+      }
+    ],
     updatedAt: new Date().toISOString()
   },
   {
@@ -233,8 +258,63 @@ function isImageAttachment(att) {
   const name = (att.name || '').toLowerCase();
   return type.startsWith('image/') || 
          url.startsWith('data:image/') || 
-         /\.(jpeg|jpg|gif|png|webp|bmp|svg)/i.test(url) || 
-         /\.(jpeg|jpg|gif|png|webp|bmp|svg)$/i.test(name);
+         /\.(jpe?g|png|gif|webp|bmp|svg|jfif|heic|heif)/i.test(url) || 
+         /\.(jpe?g|png|gif|webp|bmp|svg|jfif|heic|heif)$/i.test(name);
+}
+
+function quickAttachToTask(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const picker = document.createElement('input');
+  picker.type = 'file';
+  picker.multiple = true;
+  picker.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt';
+  picker.onchange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    showToast(`กำลังประมวลผล ${files.length} ไฟล์...`, 'info');
+
+    let currentAtts = getTaskAttachments(task);
+    let addedCount = 0;
+
+    for (const file of files) {
+      try {
+        const isImg = (file.type && file.type.startsWith('image/')) || 
+                      /\.(jpe?g|png|gif|webp|bmp|svg|jfif|heic|heif)$/i.test(file.name);
+        if (isImg) {
+          const compressed = await compressImageFile(file);
+          if (compressed) {
+            currentAtts.push(compressed);
+            addedCount++;
+          }
+        } else {
+          const doc = await readDocumentFile(file);
+          if (doc) {
+            currentAtts.push(doc);
+            addedCount++;
+          }
+        }
+      } catch (err) {
+        console.error('Quick attach error:', err);
+      }
+    }
+
+    if (addedCount > 0) {
+      task.attachments = currentAtts;
+      task.updatedAt = new Date().toISOString();
+      saveTasks();
+      renderApp();
+      const detailModal = document.getElementById('taskDetailModal');
+      if (detailModal && detailModal.classList.contains('active')) {
+        openTaskDetailModal(task.id);
+      }
+      showToast(`✅ แนบรูป/ไฟล์ลงในงาน "${task.title}" สำเร็จแล้ว!`, 'success');
+      autoSyncTask(task);
+    }
+  };
+  picker.click();
 }
 
 function compressImageFile(file, maxDimension = 640, quality = 0.6) {
@@ -981,6 +1061,9 @@ function renderKanbanBoard() {
               👁️ ดูงาน
             </button>
             ${canManage ? `
+              <button class="btn-card-action btn-quick-attach" data-id="${task.id}" title="แนบรูปถ่ายหรือไฟล์ด่วน" onclick="event.stopPropagation(); quickAttachToTask('${task.id}')">
+                📷 แนบรูป
+              </button>
               <button class="btn-card-action btn-quick-move" data-id="${task.id}" title="เปลี่ยนสถานะ">
                 🔄 เลื่อนสถานะ
               </button>
@@ -1470,12 +1553,13 @@ function openTaskDetailModal(taskId) {
   const attachments = getTaskAttachments(task);
 
   if (attGroup && attContainer) {
+    attGroup.style.display = 'block';
+    let html = '';
+
     if (attachments.length > 0) {
-      attGroup.style.display = 'block';
       const images = attachments.filter(a => isImageAttachment(a));
       const docs = attachments.filter(a => !isImageAttachment(a));
 
-      let html = '';
       if (images.length > 0) {
         html += '<div class="detail-image-gallery">';
         images.forEach(img => {
@@ -1505,11 +1589,25 @@ function openTaskDetailModal(taskId) {
         });
         html += '</div>';
       }
-      attContainer.innerHTML = html;
     } else {
-      attGroup.style.display = 'none';
-      attContainer.innerHTML = '';
+      html += `
+        <div style="font-size: 0.85rem; color: var(--text-muted); padding: 0.25rem 0;">
+          ยังไม่มีรูปภาพหรือไฟล์แนบในงานนี้
+        </div>
+      `;
     }
+
+    if (canManage) {
+      html += `
+        <div style="margin-top: 0.65rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="quickAttachToTask('${task.id}')" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+            📷 + แนบรูปถ่าย / ไฟล์ในงานนี้
+          </button>
+        </div>
+      `;
+    }
+
+    attContainer.innerHTML = html;
   }
 
   // Edit & Delete & Quick Status button visibility based on permission
@@ -2554,6 +2652,7 @@ window.openTaskFormModal = openTaskFormModal;
 window.deleteMember = deleteMember;
 window.removeFormAttachment = removeFormAttachment;
 window.openLightbox = openLightbox;
+window.quickAttachToTask = quickAttachToTask;
 
 // Start app on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', initApp);
